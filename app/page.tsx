@@ -11,7 +11,7 @@ export default async function HomePage() {
   const headingCls = "text-2xl font-semibold text-neutral-900";
   const bodyCls = "text-base text-neutral-600 max-w-prose";
   const noticeCls =
-    "rounded-lg border border-caution-400 bg-caution-50 px-6 py-4 " +
+    "rounded-lg border border-warning-400 bg-warning-50 px-6 py-4 " +
     "text-sm text-neutral-800 max-w-prose";
   const listCls = "grid gap-2 text-sm text-neutral-600";
   const labelCls = "text-sm font-medium text-neutral-500";
