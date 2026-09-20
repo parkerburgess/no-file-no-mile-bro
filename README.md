@@ -67,3 +67,11 @@ check.
 - `docs/database-schema.md` — the 26 tables, readable
 - `docs/ui-plan.md` — interface plan and build order
 - `CLAUDE.md` — architecture and working rules
+
+
+
+Navy background: #0B2148
+Runner: #FFFFFF
+Bars: #F15A24
+
+
