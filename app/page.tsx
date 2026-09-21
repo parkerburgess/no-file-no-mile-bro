@@ -1,52 +1,56 @@
 import { requireAthlete } from "@/lib/auth";
 import { dal } from "@/lib/dal";
+import { distanceUnitAbbreviation } from "@/lib/format";
+import { sampleTimeline, sampleWellness } from "@/lib/sample-data";
+import WellnessPanel from "@/components/WellnessPanel";
+import ActivityPanel from "@/components/ActivityPanel";
+import FriendsPanel from "@/components/FriendsPanel";
 
 export default async function HomePage() {
   const athlete = await requireAthlete();
   const lookups = await dal.lookups.getAll();
-  const navSports = lookups.sports.filter((sport) => sport.showInNav);
+
+  // The FK guarantees a match; the fallback only satisfies the type.
+  const distanceUnit =
+    lookups.distanceUnits.find((unit) => unit.id === athlete.distanceUnitId) ??
+    lookups.distanceUnits[0];
 
   // #region Tailwind utility consts
-  const mainCls = "px-8 py-12 grid gap-8 justify-items-start";
-  const headingCls = "text-2xl font-semibold text-neutral-900";
-  const bodyCls = "text-base text-neutral-600 max-w-prose";
+  // The row track has to be explicit rather than conditional-free: with the
+  // notice absent, a single child would land in the auto row and never fill
+  // the viewport, which breaks the columns' independent scrolling.
+  const mainWithNoticeCls =
+    "grid grid-rows-[auto_minmax(0,1fr)] min-h-0 gap-6 p-6";
+  const mainCls = "grid grid-rows-[minmax(0,1fr)] min-h-0 gap-6 p-6";
   const noticeCls =
-    "rounded-lg border border-warning-400 bg-warning-50 px-6 py-4 " +
-    "text-sm text-neutral-800 max-w-prose";
-  const listCls = "grid gap-2 text-sm text-neutral-600";
-  const labelCls = "text-sm font-medium text-neutral-500";
+    "rounded-lg border border-warning-400 bg-warning-50 px-6 py-4 text-sm " +
+    "text-neutral-800";
+  const columnsCls =
+    "grid grid-cols-[240px_minmax(0,1fr)_240px] gap-6 min-h-0";
   // #endregion
 
   return (
-    <main className={mainCls}>
-      <h1 className={headingCls}>Training</h1>
-
-      <p className={bodyCls}>
-        No surfaces are built yet. This page exists to prove the shared sign-on
-        resolved a real athlete and that the schema is reachable.
-      </p>
-
+    <main className={athlete.isProfileComplete ? mainCls : mainWithNoticeCls}>
       {!athlete.isProfileComplete && (
         <p className={noticeCls}>
-          Your profile is not complete. Birth date is still a placeholder, so the
-          MAF heart rate ceiling cannot be calculated yet.
+          Your profile is not complete. Birth date is still a placeholder, so
+          the MAF heart rate ceiling cannot be calculated yet.
         </p>
       )}
 
-      <div className={listCls}>
-        <span className={labelCls}>Signed in as</span>
-        <span>
-          {athlete.displayName} ({athlete.email})
-        </span>
+      <div className={columnsCls}>
+        <WellnessPanel
+          days={sampleWellness}
+          useImperial={distanceUnit.code === "MILE"}
+        />
 
-        <span className={labelCls}>Auth user id</span>
-        <span>{athlete.userId ?? "(unlinked)"}</span>
+        <ActivityPanel
+          items={sampleTimeline}
+          metersPerUnit={distanceUnit.metersPerUnit}
+          unitAbbreviation={distanceUnitAbbreviation(distanceUnit.code)}
+        />
 
-        <span className={labelCls}>Athlete id</span>
-        <span>{athlete.athleteId}</span>
-
-        <span className={labelCls}>Sports in nav</span>
-        <span>{navSports.map((sport) => sport.name).join(", ")}</span>
+        <FriendsPanel />
       </div>
     </main>
   );

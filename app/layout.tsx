@@ -32,7 +32,9 @@ export default async function RootLayout({
 
   // #region Tailwind utility consts
   const htmlCls = `${geistSans.variable} ${geistMono.variable} h-full antialiased`;
-  const bodyCls = "min-h-full grid grid-rows-[auto_1fr]";
+  // h-full, not min-h-full: the columns scroll independently, so the page
+  // itself must be pinned to the viewport rather than growing with content.
+  const bodyCls = "h-full grid grid-rows-[auto_minmax(0,1fr)]";
   // #endregion
 
   return (
