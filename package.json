@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@parkerburgess/wandering-parker-server": "^0.2.2",
-    "@parkerburgess/wandering-parker-ui": "^1.1.1",
+    "@parkerburgess/wandering-parker-ui": "^1.1.2",
     "@types/mssql": "^12.3.0",
     "concurrently": "^10.0.3",
     "jose": "^6.2.3",

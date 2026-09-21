@@ -69,9 +69,3 @@ check.
 - `CLAUDE.md` — architecture and working rules
 
 
-
-Navy background: #0B2148
-Runner: #FFFFFF
-Bars: #F15A24
-
-
