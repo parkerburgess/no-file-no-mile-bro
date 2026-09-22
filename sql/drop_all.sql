@@ -4,8 +4,9 @@
    Drops every object in FK dependency order: children before the parents they
    reference. Safe to run repeatedly.
 
-   This doubles as the reset script for re-running 001_initial_schema.sql and
-   002_fit_import.sql, in that order, during development.
+   This doubles as the reset script for re-running 001_initial_schema.sql,
+   002_fit_import.sql and 003_health_rating_and_table_removal.sql, in that
+   order, during development.
 
    Every name here is schema-qualified to [training]. Nothing in this file
    touches dbo, which on this shared database belongs to
@@ -28,6 +29,8 @@ DROP TABLE IF EXISTS training.TrainingPlanTemplateWorkout;
 DROP TABLE IF EXISTS training.TrainingPlanTemplateWeek;
 DROP TABLE IF EXISTS training.TrainingPlanTemplate;
 DROP TABLE IF EXISTS training.DailyWellness;
+-- Created by 003. Must follow DailyWellness, which carries the FK to it.
+DROP TABLE IF EXISTS training.PerceivedHealthRating;
 DROP TABLE IF EXISTS training.GarminWellness;
 DROP TABLE IF EXISTS training.Race;
 DROP TABLE IF EXISTS training.HeartRateProfile;

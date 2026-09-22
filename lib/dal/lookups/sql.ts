@@ -2,9 +2,7 @@ import { executeQuery } from "@parkerburgess/wandering-parker-server";
 import type {
   DistanceUnitLookupItem,
   ILookupAccess,
-  LookupItem,
   Lookups,
-  SportEnvironment,
   SportLookupItem,
   WorkoutTypeLookupItem,
 } from "@/lib/dal/lookups/types";
@@ -15,17 +13,6 @@ type SportRow = {
   Name: string;
   ShowInNav: boolean;
   SortOrder: number;
-};
-
-type EnvironmentRow = {
-  EnvironmentId: number;
-  Code: string;
-  Name: string;
-};
-
-type SportEnvironmentRow = {
-  SportId: number;
-  EnvironmentId: number;
 };
 
 type WorkoutTypeRow = {
@@ -52,21 +39,6 @@ function toSport(row: SportRow): SportLookupItem {
   };
 }
 
-function toEnvironment(row: EnvironmentRow): LookupItem {
-  return {
-    id: row.EnvironmentId,
-    code: row.Code,
-    name: row.Name,
-  };
-}
-
-function toSportEnvironment(row: SportEnvironmentRow): SportEnvironment {
-  return {
-    sportId: row.SportId,
-    environmentId: row.EnvironmentId,
-  };
-}
-
 function toWorkoutType(row: WorkoutTypeRow): WorkoutTypeLookupItem {
   return {
     id: row.WorkoutTypeId,
@@ -88,27 +60,13 @@ function toDistanceUnit(row: DistanceUnitRow): DistanceUnitLookupItem {
 export const sqlLookupAccess: ILookupAccess = {
   async getAll(): Promise<Lookups> {
     try {
-      const [sports, environments, sportEnvironments, workoutTypes, distanceUnits] =
+      const [sports, workoutTypes, distanceUnits] =
         await Promise.all([
           executeQuery((request) =>
             request.query<SportRow>(`
               SELECT SportId, Code, Name, ShowInNav, SortOrder
               FROM training.Sport
               ORDER BY SortOrder, SportId
-            `)
-          ),
-          executeQuery((request) =>
-            request.query<EnvironmentRow>(`
-              SELECT EnvironmentId, Code, Name
-              FROM training.Environment
-              ORDER BY EnvironmentId
-            `)
-          ),
-          executeQuery((request) =>
-            request.query<SportEnvironmentRow>(`
-              SELECT SportId, EnvironmentId
-              FROM training.sport_environment
-              ORDER BY SportId, EnvironmentId
             `)
           ),
           executeQuery((request) =>
@@ -129,8 +87,6 @@ export const sqlLookupAccess: ILookupAccess = {
 
       return {
         sports: sports.recordset.map(toSport),
-        environments: environments.recordset.map(toEnvironment),
-        sportEnvironments: sportEnvironments.recordset.map(toSportEnvironment),
         workoutTypes: workoutTypes.recordset.map(toWorkoutType),
         distanceUnits: distanceUnits.recordset.map(toDistanceUnit),
       };

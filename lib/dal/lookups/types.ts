@@ -19,16 +19,8 @@ export type DistanceUnitLookupItem = LookupItem & {
   metersPerUnit: number;
 };
 
-/** Which environments are legal for which sport. Drives the dependent dropdown. */
-export type SportEnvironment = {
-  sportId: number;
-  environmentId: number;
-};
-
 export type Lookups = {
   sports: SportLookupItem[];
-  environments: LookupItem[];
-  sportEnvironments: SportEnvironment[];
   workoutTypes: WorkoutTypeLookupItem[];
   distanceUnits: DistanceUnitLookupItem[];
 };
@@ -36,9 +28,8 @@ export type Lookups = {
 export interface ILookupAccess {
   /**
    * Every lookup the activity-entry and nav surfaces need, in one round trip.
-   * The planning lookups (TrainingPhase, RacePriority, TrainingPlanStatus,
-   * HeartRateAdjustmentReason) are deliberately absent until a planning surface
-   * exists to consume them.
+   * The planning lookups (TrainingPhase, RacePriority, TrainingPlanStatus)
+   * are deliberately absent until a planning surface exists to consume them.
    */
   getAll(): Promise<Lookups>;
 }

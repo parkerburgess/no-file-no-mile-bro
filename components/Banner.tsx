@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { UserMenu, useTheme } from "@parkerburgess/wandering-parker-ui";
 
@@ -14,9 +15,12 @@ export default function Banner({ userName }: Props) {
   // #region Tailwind utility consts
   const headerCls =
     "w-full flex-shrink-0 sticky top-0 z-10 bg-surface border-b " +
-    "border-neutral-200 grid grid-cols-2 items-center px-8 py-6";
-  const brandCls =
-    "text-xl font-semibold text-neutral-900 justify-self-start cursor-pointer";
+    "border-neutral-200 grid grid-cols-[1fr_auto_1fr] items-center " +
+    "h-20 px-8";
+  const leftColCls = "justify-self-start";
+  const bannerImgCls =
+    "justify-self-center h-full w-auto max-h-full object-contain " +
+    "cursor-pointer";
   const rightColCls = "justify-self-end";
   // #endregion
 
@@ -30,9 +34,17 @@ export default function Banner({ userName }: Props) {
 
   return (
     <header className={headerCls}>
-      <button type="button" onClick={handleBrandClick} className={brandCls}>
-        no file, no mile
-      </button>
+      <div className={leftColCls} />
+
+      <Image
+        src="/Banner.jpg"
+        alt="no file, no mile"
+        width={476}
+        height={80}
+        className={bannerImgCls}
+        onClick={handleBrandClick}
+        priority
+      />
 
       <div className={rightColCls}>
         <UserMenu

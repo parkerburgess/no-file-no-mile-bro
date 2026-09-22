@@ -18,7 +18,6 @@ export type {
   ILookupAccess,
   LookupItem,
   Lookups,
-  SportEnvironment,
   SportLookupItem,
   WorkoutTypeLookupItem,
 } from "@/lib/dal/lookups/types";
