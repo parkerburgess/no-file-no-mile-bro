@@ -4,8 +4,8 @@
    Drops every object in FK dependency order: children before the parents they
    reference. Safe to run repeatedly.
 
-   This doubles as the reset script for re-running 001_initial_schema.sql
-   during development.
+   This doubles as the reset script for re-running 001_initial_schema.sql and
+   002_fit_import.sql, in that order, during development.
 
    Every name here is schema-qualified to [training]. Nothing in this file
    touches dbo, which on this shared database belongs to
@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS training.MafTestSplit;
 DROP TABLE IF EXISTS training.MafTest;
 DROP TABLE IF EXISTS training.GarminActivity;
 DROP TABLE IF EXISTS training.GarminActivityExclusion;
+DROP TABLE IF EXISTS training.FitFileImport;
 DROP TABLE IF EXISTS training.Activity;
 DROP TABLE IF EXISTS training.TrainingPlanWorkout;
 DROP TABLE IF EXISTS training.TrainingPlanWeek;
@@ -27,8 +28,12 @@ DROP TABLE IF EXISTS training.TrainingPlanTemplateWorkout;
 DROP TABLE IF EXISTS training.TrainingPlanTemplateWeek;
 DROP TABLE IF EXISTS training.TrainingPlanTemplate;
 DROP TABLE IF EXISTS training.DailyWellness;
+DROP TABLE IF EXISTS training.GarminWellness;
 DROP TABLE IF EXISTS training.Race;
 DROP TABLE IF EXISTS training.HeartRateProfile;
+-- Dropped by 002_fit_import.sql on a database already at 002. Kept here,
+-- guarded by IF EXISTS, so this script still works on a database that only
+-- has 001 applied.
 DROP TABLE IF EXISTS training.GarminConnection;
 DROP TABLE IF EXISTS training.Athlete;
 DROP TABLE IF EXISTS training.sport_environment;

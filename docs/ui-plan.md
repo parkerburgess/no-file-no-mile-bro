@@ -143,7 +143,7 @@ exposed as a route handler.
 | `lib/dal/lookups` | Sport, Environment, WorkoutType, DistanceUnit |
 | `lib/dal/plan` | Templates, generated plans, plan workouts |
 | `lib/dal/activity` | The unified timeline read model, manual entry, linking |
-| `lib/dal/garmin` | Connection, sync cursor, exclusions |
+| `lib/dal/garmin` | FIT import (activity + wellness), exclusions |
 | `lib/dal/maf` | Ceiling in force on a date, MAF tests and splits |
 
 Only `athlete` and `lookups` exist today. Each of the others arrives with the
@@ -237,20 +237,30 @@ Anything ambiguous stays `Unplanned` and exposes a "link to planned" action.
 Auto-linking on ambiguity would silently mis-attribute workouts, which is worse
 than leaving it to a click.
 
-The sync also consults `training.GarminActivityExclusion` before inserting, so
-deleted junk activities do not return.
+The import also consults `training.GarminActivityExclusion` before inserting,
+so deleted junk activities do not return.
 
-**Token storage.** `GarminConnection` holds access and refresh tokens already
-encrypted by the application layer. The Blazor version used ASP.NET Data
-Protection; the replacement is an open item — see §13.
+**No API, no tokens.** Garmin data arrives only as `.fit` files copied off the
+watch over USB — there is no Garmin Connect OAuth, no `GarminConnection`, and
+no token storage. The original file bytes are never retained; each upload is
+decoded in memory, scored, and discarded. De-duplication is a SHA-256 of the
+file bytes plus the device serial number and the FIT `file_id.timeCreated`
+(`training.FitFileImport` logs every upload attempt, including duplicates).
 
 ---
 
 ## 8. Wellness panel
 
-Displays today's `DailyWellness`. Garmin supplies resting HR, HRV, sleep, and
-weight; soreness, energy, and mood are manual, so the panel carries an inline
-entry rather than being read-only — otherwise those columns stay null forever.
+Displays today's `DailyWellness`. A Forerunner 170 monitoring file supplies
+resting HR (today's reading and a rolling baseline), stress and respiration —
+captured in `training.GarminWellness`. It has **no sleep or HRV messages**, so
+those two columns, plus body weight, stay manual-only for now; soreness,
+energy and mood always have been. The panel carries an inline entry rather
+than being read-only, or those columns stay null forever.
+
+Monitoring files are not immutable — the watch appends to the current day's
+file all day — so a monitoring upload is an upsert keyed on
+`(AthleteId, RecordedOn)`, never a file-hash de-dup like the activity path.
 
 ---
 
@@ -353,16 +363,12 @@ Not designed here, but two things should be left room for now:
 ## 13. Build order
 
 1. ~~Scaffold: config, theme, banner, auth, athlete provisioning~~ — done
-2. Run `001_initial_schema.sql` against the shared database
+2. ~~Run `001_initial_schema.sql` against the shared database~~ — done; run
+   `002_fit_import.sql` on top of it before step 8
 3. Register the app: hub `projects.json` entry and an `AppAccess` grant row
 4. Shell, `SportNav` and layout against seeded lookups
 5. `lib/dal/activity` and a read-only timeline
 6. Wellness panel with inline entry
 7. Manual activity modal and link-to-planned
-8. Garmin OAuth, sync, and auto-link
+8. FIT upload, decode, and auto-link
 9. *(future)* planning page
-
-**Open before step 8.** Garmin token encryption at rest. The Blazor design used
-ASP.NET Data Protection, which has no equivalent here. Needs a decision — Node
-`crypto` with a key in the environment is the obvious candidate, but it has not
-been chosen.

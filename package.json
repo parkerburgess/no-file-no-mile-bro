@@ -10,6 +10,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@garmin/fitsdk": "^21.214.0",
     "@parkerburgess/wandering-parker-server": "^0.2.2",
     "@parkerburgess/wandering-parker-ui": "^1.1.2",
     "@types/mssql": "^12.3.0",
