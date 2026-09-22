@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "no-file-no-mile-bro",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:server-only"],
+      "port": 3004
+    }
+  ]
+}

@@ -1,4 +1,3 @@
-import { Panel } from "@parkerburgess/wandering-parker-ui";
 import ActivityRow from "@/components/ActivityRow";
 import type { TimelineItem } from "@/lib/sample-data";
 
@@ -37,16 +36,12 @@ export default function ActivityPanel({
 
   if (mostRecentFirst.length === 0) {
     return (
-      <Panel title="Activity">
-        <p className={emptyCls}>
-          No activities or planned workouts yet.
-        </p>
-      </Panel>
+      <p className={emptyCls}>No activities or planned workouts yet.</p>
     );
   }
 
   return (
-    <Panel title="Activity">
+    <>
       {mostRecentFirst.map((item) => (
         <ActivityRow
           key={`${item.kind}-${item.id}`}
@@ -55,6 +50,6 @@ export default function ActivityPanel({
           unitAbbreviation={unitAbbreviation}
         />
       ))}
-    </Panel>
+    </>
   );
 }
