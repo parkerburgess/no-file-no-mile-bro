@@ -1,5 +1,6 @@
 import type { IAthleteAccess } from "@/lib/dal/athlete/types";
 import type { ILookupAccess } from "@/lib/dal/lookups/types";
+import type { IStravaAccess } from "@/lib/dal/strava/types";
 
 /**
  * The data access layer, split by aggregate rather than exposed as one flat
@@ -13,4 +14,5 @@ import type { ILookupAccess } from "@/lib/dal/lookups/types";
 export interface IDataAccess {
   athlete: IAthleteAccess;
   lookups: ILookupAccess;
+  strava: IStravaAccess;
 }

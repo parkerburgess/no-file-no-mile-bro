@@ -8,10 +8,6 @@ export function toDateOnly(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
 
-export function toDateOnlyOrNull(value: Date | null): string | null {
-  return value === null ? null : toDateOnly(value);
-}
-
 export function toTimestamp(value: Date): string {
   return value.toISOString();
 }

@@ -38,8 +38,6 @@ export interface IAthleteAccess {
    */
   hasAppGrant(userId: string): Promise<boolean>;
 
-  findByUserId(userId: string): Promise<Athlete | null>;
-
   /**
    * Resolves the athlete for a signed-in user, creating one on first sign-in.
    * Claims a hand-seeded athlete by email rather than duplicating it.

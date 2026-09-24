@@ -42,7 +42,7 @@ export default function TabbedPanel({ activeTabId, children }: Props) {
   // #endregion
 
   return (
-    <section id="wp-tabbed-panel" className={panelCls}>
+    <section className={panelCls}>
       <nav className={tabStripCls} aria-label="Training views">
         {TAB_DEFINITIONS.map((tab) => (
           <Link

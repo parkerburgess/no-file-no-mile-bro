@@ -7,6 +7,3 @@ export const APP_NAME = "no-file-no-mile-bro";
 export const DEFAULT_DISTANCE_UNIT_CODE = "MILE";
 
 export const DEFAULT_TIME_ZONE_ID = "America/Denver";
-
-/** SQL Server schema every table in this application lives in. */
-export const DB_SCHEMA = "training";

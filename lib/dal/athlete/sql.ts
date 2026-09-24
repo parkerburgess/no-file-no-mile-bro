@@ -163,16 +163,6 @@ export const sqlAthleteAccess: IAthleteAccess = {
     }
   },
 
-  async findByUserId(userId: string): Promise<Athlete | null> {
-    try {
-      const row = await findRowByUserId(userId);
-      return row === null ? null : toAthlete(row);
-    } catch (err) {
-      console.error("[DAL] athlete.findByUserId failed", { err });
-      throw err;
-    }
-  },
-
   async provision(input: ProvisionAthleteInput): Promise<Athlete> {
     try {
       const existing = await findRowByUserId(input.userId);
