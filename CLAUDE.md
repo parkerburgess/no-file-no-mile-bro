@@ -2,10 +2,10 @@
 
 ## Project Overview
 
-Training tracker built around the MAF (Maffetone) method: aerobic-base running
+Training tracker built around HR Zones: aerobic-base running
 with cycling cross-training, held under a heart rate ceiling of roughly
-180 − age. Plans are generated from templates into dated workouts; actual work
-arrives from Garmin and is reconciled against the plan.
+125. Plans are generated from templates into dated workouts; actual work
+arrives from Strava and is reconciled against the plan.
 
 Goal races: 5K on 2026-11-14 (B, tune-up) and 25K on 2027-01-23 (A, goal).
 
@@ -25,29 +25,13 @@ that was abandoned when the app had to be Vercel-hosted.
 
 ### Data Access Layer
 
-The schema is 26 tables, so the DAL is **split by aggregate** rather than
-exposed as one flat interface:
-
-```
-lib/dal/
-  index.ts        composition root — export const dal: IDataAccess
-  types.ts        IDataAccess: one property per aggregate
-  mapping.ts      Date -> ISO string helpers
-  athlete/        types.ts + sql.ts
-  lookups/        types.ts + sql.ts
-  sql/index.ts    assembles the SQL implementations
-```
-
 Adding an aggregate: a new folder with `types.ts` and `sql.ts`, one property on
-`IDataAccess`, one line in `lib/dal/sql/index.ts`. Planned next are `plan`,
-`activity`, `garmin` and `maf` — each arrives with the surface that needs it.
+`IDataAccess`, one line in `lib/dal/sql/index.ts`. 
 
 **Always go through `executeQuery` from the shared server package**, never
 `pool.request()` directly. The shared Azure SQL instance auto-pauses, and
 `executeQuery` is what retries a query that fails while the database is still
 waking up.
-
-@docs/database-schema.md
 
 ### Auth
 

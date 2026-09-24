@@ -1,7 +1,6 @@
 # no-file-no-mile-bro
 
-MAF training tracker — aerobic-base running with cycling cross-training, plans
-generated from templates, actuals imported from Garmin.
+A training tracking application where simple activities, usually runs or cycling rides, are tracked and planned.
 
 Fifth app in the wandering-parker ecosystem. Next.js 16, TypeScript, Tailwind v4,
 SQL Server, shared SSO.
