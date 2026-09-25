@@ -5,10 +5,15 @@ import type { DailyWellness } from "@/lib/dal";
 
 type Props = {
   days: DailyWellness[];
+  healthRatingNames: string[];
   useImperial: boolean;
 };
 
-export default function WellnessPanel({ days, useImperial }: Props) {
+export default function WellnessPanel({
+  days,
+  healthRatingNames,
+  useImperial,
+}: Props) {
   // The DAL already returns these newest first. Sorting again keeps the panel
   // correct for any caller that does not, since it is a prop and not a query.
   const mostRecentFirst = [...days].sort((left, right) =>
@@ -26,7 +31,10 @@ export default function WellnessPanel({ days, useImperial }: Props) {
   if (mostRecentFirst.length === 0) {
     return (
       <Panel title="Daily">
-        <AddEditWellnessModal />
+        <AddEditWellnessModal
+          days={mostRecentFirst}
+          healthRatingNames={healthRatingNames}
+        />
         <p className={emptyCls}>No wellness entries recorded yet.</p>
       </Panel>
     );
@@ -34,7 +42,10 @@ export default function WellnessPanel({ days, useImperial }: Props) {
 
   return (
     <Panel title="Daily">
-      <AddEditWellnessModal />
+      <AddEditWellnessModal
+        days={mostRecentFirst}
+        healthRatingNames={healthRatingNames}
+      />
 
       {mostRecentFirst.map((day) => (
         <DailyWellnessCard

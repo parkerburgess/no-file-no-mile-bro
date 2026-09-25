@@ -113,6 +113,12 @@ export default async function HomePage({ searchParams }: Props) {
   // never reaches the client and cannot disagree with a client clock.
   const today = new Date().toISOString().slice(0, 10);
 
+  // The Select in the wellness form takes plain option strings, so the
+  // lookup is flattened to its names here rather than in the client bundle.
+  const healthRatingNames = lookups.perceivedHealthRatings.map(
+    (rating) => rating.name
+  );
+
   // The FK guarantees a match; the fallback only satisfies the type.
   const distanceUnit =
     lookups.distanceUnits.find((unit) => unit.id === athlete.distanceUnitId) ??
@@ -146,6 +152,7 @@ export default async function HomePage({ searchParams }: Props) {
       <div className={columnsCls}>
         <WellnessPanel
           days={wellness}
+          healthRatingNames={healthRatingNames}
           useImperial={distanceUnit.code === "MILE"}
         />
 

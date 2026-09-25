@@ -19,17 +19,27 @@ export type DistanceUnitLookupItem = LookupItem & {
   metersPerUnit: number;
 };
 
+/**
+ * The 1-5 scale behind the name, which is what the ratings sort by — the ids
+ * happen to agree today, but the order is a property of the scale.
+ */
+export type PerceivedHealthRatingLookupItem = LookupItem & {
+  rating: number;
+};
+
 export type Lookups = {
   sports: SportLookupItem[];
   workoutTypes: WorkoutTypeLookupItem[];
   distanceUnits: DistanceUnitLookupItem[];
+  perceivedHealthRatings: PerceivedHealthRatingLookupItem[];
 };
 
 export interface ILookupAccess {
   /**
-   * Every lookup the activity-entry and nav surfaces need, in one round trip.
-   * The planning lookups (TrainingPhase, RacePriority, TrainingPlanStatus)
-   * are deliberately absent until a planning surface exists to consume them.
+   * Every lookup the activity-entry, wellness-entry and nav surfaces need, in
+   * one round trip. The planning lookups (TrainingPhase, RacePriority,
+   * TrainingPlanStatus) are deliberately absent until a planning surface
+   * exists to consume them.
    */
   getAll(): Promise<Lookups>;
 }
