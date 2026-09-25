@@ -15,3 +15,5 @@ export type {
   StravaRawActivityInput,
   StravaRawZoneInput,
 } from "@/lib/dal/strava/types";
+
+export type { DailyWellness } from "@/lib/dal/wellness/types";

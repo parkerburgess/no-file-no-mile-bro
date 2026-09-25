@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { Card } from "@parkerburgess/wandering-parker-ui";
-import type { DailyWellness } from "@/lib/sample-data";
+import type { DailyWellness } from "@/lib/dal";
 import { formatDayLabel, formatDuration, formatWeight } from "@/lib/format";
 
 type Props = {
@@ -8,11 +8,21 @@ type Props = {
   useImperial: boolean;
 };
 
+/** Every column on the row is nullable, so every row can read as absent. */
+const EMPTY_VALUE = "—";
+
 function numberOrDash(value: number | null, suffix: string = ""): string {
   if (value === null) {
-    return "—";
+    return EMPTY_VALUE;
   }
   return `${value}${suffix}`;
+}
+
+function textOrDash(value: string | null): string {
+  if (value === null) {
+    return EMPTY_VALUE;
+  }
+  return value;
 }
 
 export default function DailyWellnessCard({ wellness, useImperial }: Props) {
@@ -22,14 +32,10 @@ export default function DailyWellnessCard({ wellness, useImperial }: Props) {
       value: numberOrDash(wellness.restingHeartRate),
     },
     {
-      label: "HRV",
-      value: numberOrDash(wellness.heartRateVariabilityMs, " ms"),
-    },
-    {
       label: "Sleep",
       value:
         wellness.sleepDurationSeconds === null
-          ? "—"
+          ? EMPTY_VALUE
           : formatDuration(wellness.sleepDurationSeconds),
     },
     {
@@ -40,28 +46,20 @@ export default function DailyWellnessCard({ wellness, useImperial }: Props) {
       label: "Weight",
       value:
         wellness.bodyWeightKilograms === null
-          ? "—"
+          ? EMPTY_VALUE
           : formatWeight(wellness.bodyWeightKilograms, useImperial),
     },
     {
-      label: "Energy",
-      value: numberOrDash(wellness.energyRating, "/10"),
-    },
-    {
-      label: "Soreness",
-      value: numberOrDash(wellness.sorenessRating, "/10"),
-    },
-    {
-      label: "Mood",
-      value: numberOrDash(wellness.moodRating, "/10"),
+      // PerceivedHealthRating carries both a name and a 1-5 rating; the name
+      // is what it exists for, so the number stays out of the UI.
+      label: "Health",
+      value: textOrDash(wellness.perceivedHealthName),
     },
   ];
 
   // #region Tailwind utility consts
   const contentCls = "grid gap-4";
-  const headerCls = "grid grid-cols-[1fr_auto] items-baseline gap-2";
   const dayCls = "text-sm font-semibold text-neutral-900";
-  const sourceCls = "text-xs text-neutral-400";
   // The cells stay stretched rather than justify-self'd, so each row's border
   // runs unbroken from the label across to the value. The shared leading keeps
   // the two halves the same height, which is what makes the line continuous.
@@ -77,10 +75,9 @@ export default function DailyWellnessCard({ wellness, useImperial }: Props) {
   return (
     <Card>
       <div className={contentCls}>
-        <header className={headerCls}>
-          <h3 className={dayCls}>{formatDayLabel(wellness.recordedOn)}</h3>
-          {wellness.isGarminSourced && <span className={sourceCls}>Garmin</span>}
-        </header>
+        <h3 className={dayCls}>
+          {formatDayLabel(wellness.dailyWellnessDate)}
+        </h3>
 
         <dl className={listCls}>
           {rows.map((row) => (

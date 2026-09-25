@@ -1,6 +1,6 @@
 import { Panel } from "@parkerburgess/wandering-parker-ui";
 import DailyWellnessCard from "@/components/DailyWellnessCard";
-import type { DailyWellness } from "@/lib/sample-data";
+import type { DailyWellness } from "@/lib/dal";
 
 type Props = {
   days: DailyWellness[];
@@ -8,8 +8,10 @@ type Props = {
 };
 
 export default function WellnessPanel({ days, useImperial }: Props) {
+  // The DAL already returns these newest first. Sorting again keeps the panel
+  // correct for any caller that does not, since it is a prop and not a query.
   const mostRecentFirst = [...days].sort((left, right) =>
-    right.recordedOn.localeCompare(left.recordedOn)
+    right.dailyWellnessDate.localeCompare(left.dailyWellnessDate)
   );
 
   // #region Tailwind utility consts
@@ -30,7 +32,7 @@ export default function WellnessPanel({ days, useImperial }: Props) {
     <Panel title="Daily">
       {mostRecentFirst.map((day) => (
         <DailyWellnessCard
-          key={day.recordedOn}
+          key={day.id}
           wellness={day}
           useImperial={useImperial}
         />

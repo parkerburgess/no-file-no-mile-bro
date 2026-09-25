@@ -1,11 +1,11 @@
 /**
  * PLACEHOLDER DATA — NOT REAL, NOT FROM THE DATABASE.
  *
- * Completed activities are no longer here: they come from training.Activity
- * through lib/dal/activity. What is left waits on the DAL surfaces that do not
- * exist yet — plan and wellness — so the layout can still be designed at
- * realistic density. The types below deliberately mirror
- * training.DailyWellness, training.TrainingPlanWorkout and training.Race so
+ * Completed activities and wellness days are no longer here: they come from
+ * training.Activity and training.DailyWellness through lib/dal/activity and
+ * lib/dal/wellness. What is left waits on the plan DAL, which does not exist
+ * yet, so the layout can still be designed at realistic density. The types
+ * below deliberately mirror training.TrainingPlanWorkout and training.Race so
  * each swap is mechanical.
  *
  * Values are stored the way the database stores them — canonical metric,
@@ -13,19 +13,6 @@
  */
 
 import type { CompletedActivity } from "@/lib/dal";
-
-export type DailyWellness = {
-  recordedOn: string;
-  restingHeartRate: number | null;
-  heartRateVariabilityMs: number | null;
-  sleepDurationSeconds: number | null;
-  sleepScore: number | null;
-  bodyWeightKilograms: number | null;
-  sorenessRating: number | null;
-  energyRating: number | null;
-  moodRating: number | null;
-  isGarminSourced: boolean;
-};
 
 /**
  * A race is not a separate kind of row — the schema models it as an ordinary
@@ -58,81 +45,6 @@ export type TimelineItem = CompletedActivity | PlannedWorkout;
 
 /* The timeline mixes a real table with placeholder rows, which is the whole
    reason CompletedActivity is imported rather than declared here. */
-
-export const sampleWellness: DailyWellness[] = [
-  {
-    recordedOn: "2026-09-21",
-    restingHeartRate: 48,
-    heartRateVariabilityMs: 71,
-    sleepDurationSeconds: 27000,
-    sleepScore: 84,
-    bodyWeightKilograms: 79.4,
-    sorenessRating: 3,
-    energyRating: 8,
-    moodRating: 8,
-    isGarminSourced: true,
-  },
-  {
-    recordedOn: "2026-09-20",
-    restingHeartRate: 51,
-    heartRateVariabilityMs: 63,
-    sleepDurationSeconds: 21600,
-    sleepScore: 68,
-    bodyWeightKilograms: 79.8,
-    sorenessRating: 5,
-    energyRating: 6,
-    moodRating: 7,
-    isGarminSourced: true,
-  },
-  {
-    recordedOn: "2026-09-19",
-    restingHeartRate: 49,
-    heartRateVariabilityMs: 69,
-    sleepDurationSeconds: 25200,
-    sleepScore: 79,
-    bodyWeightKilograms: 79.6,
-    sorenessRating: 2,
-    energyRating: 7,
-    moodRating: 8,
-    isGarminSourced: true,
-  },
-  {
-    recordedOn: "2026-09-18",
-    restingHeartRate: 47,
-    heartRateVariabilityMs: 74,
-    sleepDurationSeconds: 28800,
-    sleepScore: 88,
-    bodyWeightKilograms: 79.5,
-    sorenessRating: 2,
-    energyRating: 9,
-    moodRating: 9,
-    isGarminSourced: true,
-  },
-  {
-    recordedOn: "2026-09-17",
-    restingHeartRate: 53,
-    heartRateVariabilityMs: 58,
-    sleepDurationSeconds: 19800,
-    sleepScore: 61,
-    bodyWeightKilograms: 80.1,
-    sorenessRating: 6,
-    energyRating: 5,
-    moodRating: 6,
-    isGarminSourced: false,
-  },
-  {
-    recordedOn: "2026-09-16",
-    restingHeartRate: 50,
-    heartRateVariabilityMs: 66,
-    sleepDurationSeconds: 24300,
-    sleepScore: 75,
-    bodyWeightKilograms: 79.9,
-    sorenessRating: null,
-    energyRating: 7,
-    moodRating: null,
-    isGarminSourced: true,
-  },
-];
 
 /**
  * Planned workouts only. The completed side of the timeline is read from

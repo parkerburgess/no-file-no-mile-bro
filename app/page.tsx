@@ -3,11 +3,7 @@ import { dal } from "@/lib/dal";
 import { distanceUnitAbbreviation } from "@/lib/format";
 import { parseTabId } from "@/lib/tabs";
 import type { TabId } from "@/lib/tabs";
-import {
-  samplePlannedWorkouts,
-  sampleRaces,
-  sampleWellness,
-} from "@/lib/sample-data";
+import { samplePlannedWorkouts, sampleRaces } from "@/lib/sample-data";
 import type { CompletedActivity } from "@/lib/dal";
 import WellnessPanel from "@/components/WellnessPanel";
 import TabbedPanel from "@/components/TabbedPanel";
@@ -109,6 +105,9 @@ export default async function HomePage({ searchParams }: Props) {
   const lookups = await dal.lookups.getAll();
   const activeTabId = parseTabId((await searchParams).tab);
   const activities = await loadActivities(activeTabId, athlete.athleteId);
+  // The wellness column is outside the tabs, so it is read on every render
+  // rather than gated on the active tab the way activities are.
+  const wellness = await dal.wellness.listDailyWellness(athlete.athleteId);
 
   // Ordering races into upcoming and past is a server-side decision, so this
   // never reaches the client and cannot disagree with a client clock.
@@ -146,7 +145,7 @@ export default async function HomePage({ searchParams }: Props) {
 
       <div className={columnsCls}>
         <WellnessPanel
-          days={sampleWellness}
+          days={wellness}
           useImperial={distanceUnit.code === "MILE"}
         />
 
