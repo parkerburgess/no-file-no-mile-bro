@@ -1,4 +1,5 @@
 import { Panel } from "@parkerburgess/wandering-parker-ui";
+import AddEditWellnessModal from "@/components/AddEditWellnessModal";
 import DailyWellnessCard from "@/components/DailyWellnessCard";
 import type { DailyWellness } from "@/lib/dal";
 
@@ -20,9 +21,12 @@ export default function WellnessPanel({ days, useImperial }: Props) {
     "text-neutral-500";
   // #endregion
 
+  // The button is in both branches on purpose: with no rows yet it is the only
+  // way to add the first one.
   if (mostRecentFirst.length === 0) {
     return (
       <Panel title="Daily">
+        <AddEditWellnessModal />
         <p className={emptyCls}>No wellness entries recorded yet.</p>
       </Panel>
     );
@@ -30,6 +34,8 @@ export default function WellnessPanel({ days, useImperial }: Props) {
 
   return (
     <Panel title="Daily">
+      <AddEditWellnessModal />
+
       {mostRecentFirst.map((day) => (
         <DailyWellnessCard
           key={day.id}
