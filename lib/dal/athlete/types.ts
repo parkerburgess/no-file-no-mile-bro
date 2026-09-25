@@ -1,6 +1,6 @@
 /**
  * Written when an athlete is auto-provisioned from a JWT, which carries no date
- * of birth. Deliberately absurd so a stray MAF calculation is obviously wrong
+ * of birth. Deliberately absurd so a stray ceiling calculation is obviously
  * rather than plausibly wrong. Must not be trusted while profileCompletedAt is
  * null.
  */

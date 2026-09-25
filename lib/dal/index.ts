@@ -4,6 +4,7 @@ import type { IDataAccess } from "@/lib/dal/types";
 export const dal: IDataAccess = sqlDataAccess;
 
 export type {
+  CompletedActivity,
   SkippedStravaActivity,
   StravaMigrationResult,
 } from "@/lib/dal/activity/types";

@@ -1,9 +1,6 @@
 import { Badge } from "@parkerburgess/wandering-parker-ui";
-import type {
-  CompletedActivity,
-  PlannedWorkout,
-  TimelineItem,
-} from "@/lib/sample-data";
+import type { CompletedActivity } from "@/lib/dal";
+import type { PlannedWorkout, TimelineItem } from "@/lib/sample-data";
 import {
   formatDayLabel,
   formatDistance,
@@ -42,8 +39,8 @@ function CompletedRow({
   unitAbbreviation: string;
 }) {
   const isAboveCeiling =
-    activity.secondsAboveMafCeiling !== null &&
-    activity.secondsAboveMafCeiling > 0;
+    activity.secondsAboveHeartRateCeiling !== null &&
+    activity.secondsAboveHeartRateCeiling > 0;
 
   // #region Tailwind utility consts
   const rowCls =
@@ -54,6 +51,7 @@ function CompletedRow({
   const timeCls = "text-xs text-neutral-500";
   const identityCls = "grid gap-1.5";
   const titleCls = "text-sm font-semibold text-neutral-900";
+  const subtitleCls = "text-xs text-neutral-500";
   const tagsCls = "flex flex-wrap gap-1.5";
   const metricsCls = "grid grid-flow-col auto-cols-max gap-5";
   // #endregion
@@ -66,14 +64,17 @@ function CompletedRow({
       </div>
 
       <div className={identityCls}>
-        <span className={titleCls}>
-          {activity.sportName} · {activity.environmentName}
-        </span>
+        <span className={titleCls}>{activity.sportName}</span>
+        {/* The name the source gave it, which is the only thing distinguishing
+            one afternoon run from the next. Absent on a hand-entered row. */}
+        {activity.name !== null && (
+          <span className={subtitleCls}>{activity.name}</span>
+        )}
         <span className={tagsCls}>
-          {!activity.isPlanned && <Badge color="neutral">Unplanned</Badge>}
           {isAboveCeiling && (
             <Badge color="warning">
-              {formatDuration(activity.secondsAboveMafCeiling ?? 0)} over MAF
+              {formatDuration(activity.secondsAboveHeartRateCeiling ?? 0)} over
+              ceiling
             </Badge>
           )}
         </span>

@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "no file, no mile",
-  description: "MAF training plans, workouts and activity tracking",
+  description: "Training plans, workouts and activity tracking",
 };
 
 export default async function RootLayout({

@@ -3,7 +3,12 @@ import { dal } from "@/lib/dal";
 import { distanceUnitAbbreviation } from "@/lib/format";
 import { parseTabId } from "@/lib/tabs";
 import type { TabId } from "@/lib/tabs";
-import { sampleRaces, sampleTimeline, sampleWellness } from "@/lib/sample-data";
+import {
+  samplePlannedWorkouts,
+  sampleRaces,
+  sampleWellness,
+} from "@/lib/sample-data";
+import type { CompletedActivity } from "@/lib/dal";
 import WellnessPanel from "@/components/WellnessPanel";
 import TabbedPanel from "@/components/TabbedPanel";
 import ActivityPanel from "@/components/ActivityPanel";
@@ -23,13 +28,14 @@ function activeTabContent(
   activeTabId: TabId,
   today: string,
   metersPerUnit: number,
-  unitAbbreviation: string
+  unitAbbreviation: string,
+  activities: CompletedActivity[]
 ): React.ReactNode {
   switch (activeTabId) {
     case "activities":
       return (
         <ActivityPanel
-          items={sampleTimeline}
+          items={[...activities, ...samplePlannedWorkouts]}
           metersPerUnit={metersPerUnit}
           unitAbbreviation={unitAbbreviation}
         />
@@ -62,10 +68,9 @@ function activeTabContent(
         <PlaceholderPanel
           headline="Analysis is not built yet"
           detail={
-            "Charts and tables over time: aerobic drift, time under the MAF " +
-            "ceiling, weekly volume against the plan. It waits on " +
-            "lib/dal/activity and a charting library, which has not been " +
-            "chosen."
+            "Charts and tables over time: aerobic drift, time under the " +
+            "heart rate ceiling, weekly volume against the plan. It waits on " +
+            "a charting library, which has not been chosen."
           }
         />
       );
@@ -84,10 +89,26 @@ function activeTabContent(
   }
 }
 
+/**
+ * Only the activities tab reads them, and only the active tab's panel is
+ * built, so the query is skipped entirely on every other tab.
+ */
+async function loadActivities(
+  activeTabId: TabId,
+  athleteId: number
+): Promise<CompletedActivity[]> {
+  if (activeTabId !== "activities") {
+    return [];
+  }
+
+  return dal.activity.listActivities(athleteId);
+}
+
 export default async function HomePage({ searchParams }: Props) {
   const athlete = await requireAthlete();
   const lookups = await dal.lookups.getAll();
   const activeTabId = parseTabId((await searchParams).tab);
+  const activities = await loadActivities(activeTabId, athlete.athleteId);
 
   // Ordering races into upcoming and past is a server-side decision, so this
   // never reaches the client and cannot disagree with a client clock.
@@ -108,8 +129,10 @@ export default async function HomePage({ searchParams }: Props) {
   const noticeCls =
     "rounded-lg border border-warning-400 bg-warning-50 px-6 py-4 text-sm " +
     "text-neutral-800";
+  // The third track is `auto`, not a fixed width: FriendsPanel collapses to a
+  // rail, and the timeline is what should get the width back when it does.
   const columnsCls =
-    "grid grid-cols-[240px_minmax(0,1fr)_240px] gap-6 min-h-0";
+    "grid grid-cols-[240px_minmax(0,1fr)_auto] gap-6 min-h-0";
   // #endregion
 
   return (
@@ -117,7 +140,7 @@ export default async function HomePage({ searchParams }: Props) {
       {!athlete.isProfileComplete && (
         <p className={noticeCls}>
           Your profile is not complete. Birth date is still a placeholder, so
-          the MAF heart rate ceiling cannot be calculated yet.
+          the heart rate ceiling cannot be calculated yet.
         </p>
       )}
 
@@ -132,7 +155,8 @@ export default async function HomePage({ searchParams }: Props) {
             activeTabId,
             today,
             distanceUnit.metersPerUnit,
-            distanceUnitAbbreviation(distanceUnit.code)
+            distanceUnitAbbreviation(distanceUnit.code),
+            activities
           )}
         </TabbedPanel>
 

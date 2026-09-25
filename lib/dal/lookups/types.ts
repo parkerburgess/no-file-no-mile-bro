@@ -11,7 +11,7 @@ export type SportLookupItem = LookupItem & {
 };
 
 export type WorkoutTypeLookupItem = LookupItem & {
-  /** True when the workout must be held at or below the MAF ceiling. */
+  /** True when the workout must be held at or below the heart rate ceiling. */
   isAerobicCapped: boolean;
 };
 

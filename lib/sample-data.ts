@@ -1,15 +1,18 @@
 /**
  * PLACEHOLDER DATA — NOT REAL, NOT FROM THE DATABASE.
  *
- * The activity, plan and wellness DAL surfaces do not exist yet, and every
- * transactional table is empty. This module exists so the layout can be
- * designed at realistic density. Delete it once the real DAL lands; the types
- * below deliberately mirror training.DailyWellness, training.Activity and
- * training.TrainingPlanWorkout so that swap is mechanical.
+ * Completed activities are no longer here: they come from training.Activity
+ * through lib/dal/activity. What is left waits on the DAL surfaces that do not
+ * exist yet — plan and wellness — so the layout can still be designed at
+ * realistic density. The types below deliberately mirror
+ * training.DailyWellness, training.TrainingPlanWorkout and training.Race so
+ * each swap is mechanical.
  *
  * Values are stored the way the database stores them — canonical metric,
  * seconds, kilograms — and converted at the UI edge.
  */
+
+import type { CompletedActivity } from "@/lib/dal";
 
 export type DailyWellness = {
   recordedOn: string;
@@ -22,21 +25,6 @@ export type DailyWellness = {
   energyRating: number | null;
   moodRating: number | null;
   isGarminSourced: boolean;
-};
-
-export type CompletedActivity = {
-  kind: "activity";
-  id: number;
-  sportName: string;
-  environmentName: string;
-  startedAt: string;
-  durationSeconds: number;
-  distanceMeters: number | null;
-  averageHeartRate: number | null;
-  maxHeartRate: number | null;
-  secondsAboveMafCeiling: number | null;
-  perceivedExertion: number | null;
-  isPlanned: boolean;
 };
 
 /**
@@ -67,6 +55,9 @@ export type PlannedWorkout = {
 };
 
 export type TimelineItem = CompletedActivity | PlannedWorkout;
+
+/* The timeline mixes a real table with placeholder rows, which is the whole
+   reason CompletedActivity is imported rather than declared here. */
 
 export const sampleWellness: DailyWellness[] = [
   {
@@ -143,7 +134,12 @@ export const sampleWellness: DailyWellness[] = [
   },
 ];
 
-export const sampleTimeline: TimelineItem[] = [
+/**
+ * Planned workouts only. The completed side of the timeline is read from
+ * training.Activity, so these are the rows that still have no table behind
+ * them.
+ */
+export const samplePlannedWorkouts: PlannedWorkout[] = [
   {
     kind: "planned",
     id: 502,
@@ -153,7 +149,7 @@ export const sampleTimeline: TimelineItem[] = [
     scheduledDate: "2026-11-14",
     targetDurationSeconds: null,
     targetDistanceMeters: 5000,
-    // WorkoutType RACE is the one aerobic-uncapped type, so no MAF ceiling.
+    // WorkoutType RACE is the one aerobic-uncapped type, so no HR ceiling.
     heartRateCeiling: null,
     isAerobicCapped: false,
     isSkipped: false,
@@ -192,34 +188,6 @@ export const sampleTimeline: TimelineItem[] = [
     race: null,
   },
   {
-    kind: "activity",
-    id: 412,
-    sportName: "Run",
-    environmentName: "Treadmill",
-    startedAt: "2026-09-21T06:12:00",
-    durationSeconds: 2705,
-    distanceMeters: 6437,
-    averageHeartRate: 134,
-    maxHeartRate: 146,
-    secondsAboveMafCeiling: 95,
-    perceivedExertion: 4,
-    isPlanned: true,
-  },
-  {
-    kind: "activity",
-    id: 411,
-    sportName: "Cycling",
-    environmentName: "Stationary",
-    startedAt: "2026-09-20T17:40:00",
-    durationSeconds: 3600,
-    distanceMeters: 24140,
-    averageHeartRate: 128,
-    maxHeartRate: 141,
-    secondsAboveMafCeiling: 0,
-    perceivedExertion: 3,
-    isPlanned: true,
-  },
-  {
     kind: "planned",
     id: 499,
     sportName: "Run",
@@ -232,48 +200,6 @@ export const sampleTimeline: TimelineItem[] = [
     isAerobicCapped: true,
     isSkipped: true,
     race: null,
-  },
-  {
-    kind: "activity",
-    id: 410,
-    sportName: "Run",
-    environmentName: "Trail",
-    startedAt: "2026-09-18T06:30:00",
-    durationSeconds: 3310,
-    distanceMeters: 8047,
-    averageHeartRate: 137,
-    maxHeartRate: 158,
-    secondsAboveMafCeiling: 430,
-    perceivedExertion: 6,
-    isPlanned: false,
-  },
-  {
-    kind: "activity",
-    id: 409,
-    sportName: "Strength",
-    environmentName: "Home",
-    startedAt: "2026-09-17T19:05:00",
-    durationSeconds: 1800,
-    distanceMeters: null,
-    averageHeartRate: null,
-    maxHeartRate: null,
-    secondsAboveMafCeiling: null,
-    perceivedExertion: 5,
-    isPlanned: true,
-  },
-  {
-    kind: "activity",
-    id: 408,
-    sportName: "Run",
-    environmentName: "Treadmill",
-    startedAt: "2026-09-16T06:20:00",
-    durationSeconds: 2400,
-    distanceMeters: 5632,
-    averageHeartRate: 131,
-    maxHeartRate: 140,
-    secondsAboveMafCeiling: 0,
-    perceivedExertion: 4,
-    isPlanned: true,
   },
 ];
 

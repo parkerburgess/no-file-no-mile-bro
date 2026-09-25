@@ -8,6 +8,29 @@
  */
 
 /**
+ * One completed activity, as the activity timeline renders it. `kind` is the
+ * timeline's discriminant against a planned workout, which still comes from
+ * lib/sample-data until a plan DAL exists.
+ *
+ * training.Activity carries no name column, so `name` is Notes — which is
+ * where the migration puts the name the source gave the activity, and the one
+ * field the athlete can edit afterward.
+ */
+export type CompletedActivity = {
+  kind: "activity";
+  id: number;
+  sportName: string;
+  name: string | null;
+  startedAt: string;
+  durationSeconds: number;
+  distanceMeters: number | null;
+  averageHeartRate: number | null;
+  maxHeartRate: number | null;
+  /** Null when the activity was recorded without heart rate zone data. */
+  secondsAboveHeartRateCeiling: number | null;
+};
+
+/**
  * A live raw Strava activity the migration left behind because its Strava
  * type has no Sport to map to. The row stays in staging, so adding the
  * mapping and pulling again picks it up.
@@ -24,6 +47,13 @@ export type StravaMigrationResult = {
 };
 
 export interface IActivityAccess {
+  /**
+   * Every completed activity for one athlete, newest first. Unbounded on
+   * purpose: the timeline shows all of them, and a window can be added when
+   * the volume justifies guessing at one.
+   */
+  listActivities(athleteId: number): Promise<CompletedActivity[]>;
+
   /**
    * Promotes every raw Strava activity that is not marked deleted and has no
    * training.Activity row yet. Insert-only: an activity already promoted is

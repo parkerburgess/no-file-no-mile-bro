@@ -1,6 +1,8 @@
 import sql from "mssql";
 import { executeQuery } from "@parkerburgess/wandering-parker-server";
+import { toTimestamp } from "@/lib/dal/mapping";
 import type {
+  CompletedActivity,
   IActivityAccess,
   SkippedStravaActivity,
   StravaMigrationResult,
@@ -35,6 +37,18 @@ type SportMapEntry = {
   stravaType: string;
   sportCode: string;
   index: number;
+};
+
+type ActivityRow = {
+  ActivityId: number;
+  SportName: string;
+  Notes: string | null;
+  StartedAt: Date;
+  DurationSeconds: number;
+  DistanceMeters: number | null;
+  AverageHeartRate: number | null;
+  MaxHeartRate: number | null;
+  SecondsAboveHeartRateCeiling: number | null;
 };
 
 type SkippedRow = {
@@ -105,6 +119,24 @@ function bindSportMap(
   }
 
   return bound;
+}
+
+function toCompletedActivity(row: ActivityRow): CompletedActivity {
+  return {
+    kind: "activity",
+    id: row.ActivityId,
+    sportName: row.SportName,
+    name: row.Notes,
+    startedAt: toTimestamp(row.StartedAt),
+    durationSeconds: row.DurationSeconds,
+    /* DECIMAL: the driver can hand these back as strings, so they are widened
+       rather than trusted to arrive as numbers. */
+    distanceMeters:
+      row.DistanceMeters === null ? null : Number(row.DistanceMeters),
+    averageHeartRate: row.AverageHeartRate,
+    maxHeartRate: row.MaxHeartRate,
+    secondsAboveHeartRateCeiling: row.SecondsAboveHeartRateCeiling,
+  };
 }
 
 function toSkipped(row: SkippedRow): SkippedStravaActivity {
@@ -211,6 +243,42 @@ async function insertFromStravaRaw(entries: SportMapEntry[]): Promise<number> {
 }
 
 export const sqlActivityAccess: IActivityAccess = {
+  async listActivities(athleteId: number): Promise<CompletedActivity[]> {
+    try {
+      const result = await executeQuery((request) =>
+        request.input("athleteId", sql.Int, athleteId).query<ActivityRow>(`
+          SELECT A.ActivityId,
+                 S.Name AS SportName,
+                 A.Notes,
+                 A.StartedAt,
+                 A.DurationSeconds,
+                 A.DistanceMeters,
+                 A.AverageHeartRate,
+                 A.MaxHeartRate,
+                 /* Zone 4 begins at the heart rate ceiling and zone 5 is
+                    everything above it, so the two together are the time spent
+                    at or over the ceiling. This is only true while the zone
+                    boundaries the source reports keep the ceiling at the
+                    bottom of zone 4. The sum is null of its own accord when
+                    either column is, which is what an activity recorded
+                    without zone data should read as. */
+                 A.Zone4Seconds + A.Zone5Seconds
+                   AS SecondsAboveHeartRateCeiling
+          FROM training.Activity A
+          JOIN training.Sport S
+            ON S.SportId = A.SportId
+          WHERE A.AthleteId = @athleteId
+          ORDER BY A.StartedAt DESC
+        `)
+      );
+
+      return result.recordset.map(toCompletedActivity);
+    } catch (err) {
+      console.error("[DAL] activity.listActivities failed", { err });
+      throw err;
+    }
+  },
+
   async migrateStravaActivities(): Promise<StravaMigrationResult> {
     try {
       const entries = toSportMapEntries();

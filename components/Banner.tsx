@@ -87,6 +87,11 @@ export default function Banner({ userName }: Props) {
 
       const result = (await response.json()) as PullResponse;
       setPullMessage(describeResult(result));
+
+      /* The pull migrates what it stages into training.Activity, so the
+         activity timeline the server rendered is now stale. Re-running the
+         server render is what brings the new rows down. */
+      router.refresh();
     } catch {
       setPullMessage("Could not reach the server.");
     } finally {
