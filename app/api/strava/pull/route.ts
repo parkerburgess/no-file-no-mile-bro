@@ -81,7 +81,18 @@ export async function POST() {
     const activitiesSaved = await dal.strava.saveActivities(activityInputs);
     const zonesSaved = await dal.strava.saveZones(zoneInputs);
 
-    return NextResponse.json({ activitiesSaved, zonesSaved });
+    /* Promote the staged rows to training.Activity last, once both raw tables
+       are written, so an activity and its zone distribution land together.
+       This reads the tables rather than what was just pulled, so it also
+       picks up anything an earlier pull staged and left unpromoted. */
+    const migration = await dal.activity.migrateStravaActivities();
+
+    return NextResponse.json({
+      activitiesSaved,
+      zonesSaved,
+      activitiesMigrated: migration.migrated,
+      activitiesSkipped: migration.skipped,
+    });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "Unknown error.";
     return serverError(`Strava pull failed: ${reason}`);

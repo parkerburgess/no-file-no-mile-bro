@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button, UserMenu, useTheme } from "@parkerburgess/wandering-parker-ui";
+import type { SkippedStravaActivity } from "@/lib/dal";
 
 type Props = {
   userName: string;
@@ -12,6 +13,8 @@ type Props = {
 type PullResponse = {
   activitiesSaved: number;
   zonesSaved: number;
+  activitiesMigrated: number;
+  activitiesSkipped: SkippedStravaActivity[];
 };
 
 type ErrorResponse = {
@@ -38,14 +41,26 @@ export default function Banner({ userName }: Props) {
   const rightColCls = "justify-self-end";
   // #endregion
 
+  /* A pull can stage nothing new and still promote a raw row an earlier pull
+     left behind, so the migrated count decides "nothing happened", not the
+     saved count on its own. */
   function describeResult(result: PullResponse): string {
-    if (result.activitiesSaved === 0) {
+    if (result.activitiesSaved === 0 && result.activitiesMigrated === 0) {
       return "No new activities";
     }
 
-    return (
+    const summary =
       `Saved ${result.activitiesSaved} new activities and ` +
-      `${result.zonesSaved} zone records`
+      `${result.zonesSaved} zone records, migrated ` +
+      `${result.activitiesMigrated}`;
+
+    if (result.activitiesSkipped.length === 0) {
+      return summary;
+    }
+
+    return (
+      `${summary} (${result.activitiesSkipped.length} skipped — ` +
+      `unrecognised Strava type)`
     );
   }
 

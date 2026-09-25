@@ -1,3 +1,4 @@
+import type { IActivityAccess } from "@/lib/dal/activity/types";
 import type { IAthleteAccess } from "@/lib/dal/athlete/types";
 import type { ILookupAccess } from "@/lib/dal/lookups/types";
 import type { IStravaAccess } from "@/lib/dal/strava/types";
@@ -8,10 +9,11 @@ import type { IStravaAccess } from "@/lib/dal/strava/types";
  *
  * Adding an aggregate means: a new folder under lib/dal with its own types.ts
  * and sql.ts, one property here, and one line in lib/dal/sql/index.ts. The
- * planned additions are plan, activity, garmin and maf — each waits for the
+ * planned additions are plan, garmin and maf — each waits for the
  * surface that consumes it.
  */
 export interface IDataAccess {
+  activity: IActivityAccess;
   athlete: IAthleteAccess;
   lookups: ILookupAccess;
   strava: IStravaAccess;
