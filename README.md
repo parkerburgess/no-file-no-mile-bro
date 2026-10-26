@@ -1,4 +1,4 @@
-# no-file-no-mile-bro
+# no-file-no-mile
 
 A training tracking application where simple activities, usually runs or cycling rides, are tracked and planned.
 
@@ -55,7 +55,7 @@ belongs to the auth service.
 
 Two registrations outside this repo, neither done yet:
 
-1. An `AppAccess` row granting your user `no-file-no-mile-bro`.
+1. An `AppAccess` row granting your user `no-file-no-mile`.
 2. An entry in the hub's `data/projects.json` so the app appears in the launcher.
 
 Local development does not need either — `DISABLE_AUTH=true` skips the grant
