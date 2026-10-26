@@ -23,7 +23,7 @@ type ErrorResponse = {
 
 export default function Banner({ userName }: Props) {
   const router = useRouter();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme, palette, setPalette } = useTheme();
   const [isPulling, setIsPulling] = useState(false);
   const [pullMessage, setPullMessage] = useState("");
 
@@ -129,6 +129,8 @@ export default function Banner({ userName }: Props) {
           userName={userName}
           theme={resolvedTheme}
           onToggleTheme={handleToggleTheme}
+          palette={palette}
+          onSelectPalette={setPalette}
         />
       </div>
     </header>
