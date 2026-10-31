@@ -29,9 +29,8 @@ Adding an aggregate: a new folder with `types.ts` and `sql.ts`, one property on
 `IDataAccess`, one line in `lib/dal/sql/index.ts`. 
 
 **Always go through `executeQuery` from the shared server package**, never
-`pool.request()` directly. The shared Azure SQL instance auto-pauses, and
-`executeQuery` is what retries a query that fails while the database is still
-waking up.
+`pool.request()` directly. `executeQuery` is what retries a query that hits a
+brief transient Azure SQL fault (failover, maintenance reconfiguration).
 
 ### Auth
 
