@@ -28,9 +28,16 @@ that was abandoned when the app had to be Vercel-hosted.
 Adding an aggregate: a new folder with `types.ts` and `sql.ts`, one property on
 `IDataAccess`, one line in `lib/dal/sql/index.ts`. 
 
-**Always go through `executeQuery` from the shared server package**, never
-`pool.request()` directly. `executeQuery` is what retries a query that hits a
-brief transient Azure SQL fault (failover, maintenance reconfiguration).
+**Reads and idempotent writes go through `executeQuery`** from the shared
+server package. `executeQuery` is what retries a query that hits a brief
+transient Azure SQL fault (failover, maintenance reconfiguration).
+
+A write is idempotent when running it twice leaves the same state as running it
+once: an UPDATE that sets absolute values, a DELETE by key, an upsert on a
+natural key, or an INSERT guarded by `NOT EXISTS` or a unique constraint.
+**Non-idempotent writes** (an unguarded INSERT, an UPDATE that increments) use
+`getPool()` and `pool.request()` with a single attempt — a write can commit and
+then lose its connection, and a retry would apply it twice.
 
 ### Auth
 
