@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify, createRemoteJWKSet } from "jose";
+import { enforceReadOnly } from "@parkerburgess/wandering-parker-server/readonly";
 
 const WANDERING_PARKER_URL = process.env.WANDERING_PARKER_URL ?? "http://localhost:3000";
 
@@ -30,7 +31,9 @@ export async function proxy(request: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, JWKS);
+    const { payload } = await jwtVerify(token, JWKS);
+    const blocked = enforceReadOnly(payload, request);
+    if (blocked) return blocked;
     return NextResponse.next();
   } catch {
     const response = NextResponse.redirect(loginUrl);
