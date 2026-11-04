@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@parkerburgess/wandering-parker-ui";
-import Banner from "@/components/Banner";
+import { Header, ThemeProvider } from "@parkerburgess/wandering-parker-ui";
+import type { SiteNavItem } from "@parkerburgess/wandering-parker-ui";
 import { requireAthlete } from "@/lib/auth";
+
+const navItems: SiteNavItem[] = [];
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,7 +43,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning className={htmlCls}>
       <body className={bodyCls}>
         <ThemeProvider>
-          <Banner userName={athlete.displayName} />
+          <Header userName={athlete.displayName} brandText="No File No Mile" navItems={navItems} />
           {children}
         </ThemeProvider>
       </body>

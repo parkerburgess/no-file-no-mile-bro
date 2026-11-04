@@ -1,14 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button, UserMenu, useTheme } from "@parkerburgess/wandering-parker-ui";
+import { Button } from "@parkerburgess/wandering-parker-ui";
 import type { SkippedStravaActivity } from "@/lib/dal";
-
-type Props = {
-  userName: string;
-};
 
 type PullResponse = {
   activitiesSaved: number;
@@ -21,24 +16,15 @@ type ErrorResponse = {
   error: string;
 };
 
-export default function Banner({ userName }: Props) {
+export default function PullStravaAction() {
   const router = useRouter();
-  const { resolvedTheme, setTheme, palette, setPalette } = useTheme();
   const [isPulling, setIsPulling] = useState(false);
   const [pullMessage, setPullMessage] = useState("");
 
   // #region Tailwind utility consts
-  const headerCls =
-    "w-full flex-shrink-0 sticky top-0 z-10 bg-surface border-b " +
-    "border-neutral-200 grid grid-cols-[1fr_auto_1fr] items-center " +
-    "h-20 px-8";
-  const leftColCls = "justify-self-start grid gap-1 justify-items-start";
+  const rowCls = "flex items-center gap-3";
   const pullBtnCls = "cursor-pointer disabled:cursor-not-allowed";
   const pullMessageCls = "text-sm text-neutral-600";
-  const bannerImgCls =
-    "justify-self-center h-full w-auto max-h-full object-contain " +
-    "cursor-pointer";
-  const rightColCls = "justify-self-end";
   // #endregion
 
   /* A pull can stage nothing new and still promote a raw row an earlier pull
@@ -62,14 +48,6 @@ export default function Banner({ userName }: Props) {
       `${summary} (${result.activitiesSkipped.length} skipped — ` +
       `unrecognised Strava type)`
     );
-  }
-
-  function handleBrandClick() {
-    router.push("/");
-  }
-
-  function handleToggleTheme() {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
   }
 
   async function handlePullStrava() {
@@ -100,39 +78,17 @@ export default function Banner({ userName }: Props) {
   }
 
   return (
-    <header className={headerCls}>
-      <div className={leftColCls}>
-        <Button
-          variant="secondary"
-          onClick={handlePullStrava}
-          disabled={isPulling}
-          className={pullBtnCls}
-        >
-          {isPulling ? "Pulling..." : "Pull Strava"}
-        </Button>
+    <div className={rowCls}>
+      <Button
+        variant="secondary"
+        onClick={handlePullStrava}
+        disabled={isPulling}
+        className={pullBtnCls}
+      >
+        {isPulling ? "Pulling..." : "Pull Strava"}
+      </Button>
 
-        {pullMessage !== "" && <span className={pullMessageCls}>{pullMessage}</span>}
-      </div>
-
-      <Image
-        src="/Banner.jpg"
-        alt="no file, no mile"
-        width={476}
-        height={80}
-        className={bannerImgCls}
-        onClick={handleBrandClick}
-        priority
-      />
-
-      <div className={rightColCls}>
-        <UserMenu
-          userName={userName}
-          theme={resolvedTheme}
-          onToggleTheme={handleToggleTheme}
-          palette={palette}
-          onSelectPalette={setPalette}
-        />
-      </div>
-    </header>
+      {pullMessage !== "" && <span className={pullMessageCls}>{pullMessage}</span>}
+    </div>
   );
 }

@@ -11,6 +11,7 @@ import ActivityPanel from "@/components/ActivityPanel";
 import RacePanel from "@/components/RacePanel";
 import PlaceholderPanel from "@/components/PlaceholderPanel";
 import FriendsPanel from "@/components/FriendsPanel";
+import PullStravaAction from "@/components/PullStravaAction";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -127,10 +128,12 @@ export default async function HomePage({ searchParams }: Props) {
   // #region Tailwind utility consts
   // The row track has to be explicit rather than conditional-free: with the
   // notice absent, a single child would land in the auto row and never fill
-  // the viewport, which breaks the columns' independent scrolling.
+  // the viewport, which breaks the columns' independent scrolling. The pull
+  // action row is always present now, so both variants gained an extra
+  // leading `auto` track for it.
   const mainWithNoticeCls =
-    "grid grid-rows-[auto_minmax(0,1fr)] min-h-0 gap-6 p-6";
-  const mainCls = "grid grid-rows-[minmax(0,1fr)] min-h-0 gap-6 p-6";
+    "grid grid-rows-[auto_auto_minmax(0,1fr)] min-h-0 gap-6 p-6";
+  const mainCls = "grid grid-rows-[auto_minmax(0,1fr)] min-h-0 gap-6 p-6";
   const noticeCls =
     "rounded-lg border border-warning-400 bg-warning-50 px-6 py-4 text-sm " +
     "text-neutral-800";
@@ -142,6 +145,8 @@ export default async function HomePage({ searchParams }: Props) {
 
   return (
     <main className={athlete.isProfileComplete ? mainCls : mainWithNoticeCls}>
+      <PullStravaAction />
+
       {!athlete.isProfileComplete && (
         <p className={noticeCls}>
           Your profile is not complete. Birth date is still a placeholder, so
