@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header, ThemeProvider } from "@parkerburgess/wandering-parker-ui";
-import type { SiteNavItem } from "@parkerburgess/wandering-parker-ui";
+import type {
+  SiteNavItem,
+  ContactConfig,
+} from "@parkerburgess/wandering-parker-ui";
 import { requireAthlete } from "@/lib/auth";
+import { getUserEmail } from "@parkerburgess/wandering-parker-server";
 
 const navItems: SiteNavItem[] = [];
 
@@ -32,6 +36,13 @@ export default async function RootLayout({
   // requireAthlete() again costs nothing.
   const athlete = await requireAthlete();
 
+  const contact: ContactConfig = {
+    endpoint: `${process.env.AUTH_SERVICE_URL ?? "http://localhost:3001"}/api/contact`,
+    sourceApp: "No File No Mile",
+    turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    userEmail: (await getUserEmail()) ?? undefined,
+  };
+
   // #region Tailwind utility consts
   const htmlCls = `${geistSans.variable} ${geistMono.variable} h-full antialiased`;
   // h-full, not min-h-full: the columns scroll independently, so the page
@@ -43,7 +54,12 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning className={htmlCls}>
       <body className={bodyCls}>
         <ThemeProvider>
-          <Header userName={athlete.displayName} brandText="No File No Mile" navItems={navItems} />
+          <Header
+            userName={athlete.displayName}
+            brandText="No File No Mile"
+            navItems={navItems}
+            contact={contact}
+          />
           {children}
         </ThemeProvider>
       </body>
