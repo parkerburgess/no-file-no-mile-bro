@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@garmin/fitsdk": "^21.214.0",
-    "@parkerburgess/wandering-parker-server": "^0.3.1",
-    "@parkerburgess/wandering-parker-ui": "^1.9.0",
+    "@parkerburgess/wandering-parker-server": "^0.4.0",
+    "@parkerburgess/wandering-parker-ui": "^1.10.0",
     "@types/mssql": "^12.3.0",
     "concurrently": "^10.0.3",
     "jose": "^6.2.3",
