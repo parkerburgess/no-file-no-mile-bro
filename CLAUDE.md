@@ -101,3 +101,5 @@ then lose its connection, and a retry would apply it twice.
 ## Interface Plan
 
 @docs/ui-plan.md
+
+@~/.claude/tailwind-react.md
