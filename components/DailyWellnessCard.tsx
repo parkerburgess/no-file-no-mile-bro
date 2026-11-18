@@ -1,59 +1,44 @@
 import { Fragment } from "react";
 import { Card } from "@parkerburgess/wandering-parker-ui";
-import type { DailyWellness } from "@/lib/dal";
-import { formatDayLabel, formatDuration, formatWeight } from "@/lib/format";
+import type { WellnessCardDto } from "@/dto";
 
 type Props = {
-  wellness: DailyWellness;
-  useImperial: boolean;
+  wellness: WellnessCardDto;
 };
 
 /** Every column on the row is nullable, so every row can read as absent. */
 const EMPTY_VALUE = "—";
 
-function numberOrDash(value: number | null, suffix: string = ""): string {
-  if (value === null) {
-    return EMPTY_VALUE;
-  }
-  return `${value}${suffix}`;
-}
-
-function textOrDash(value: string | null): string {
+function valueOrDash(value: string | null): string {
   if (value === null) {
     return EMPTY_VALUE;
   }
   return value;
 }
 
-export default function DailyWellnessCard({ wellness, useImperial }: Props) {
+export default function DailyWellnessCard({ wellness }: Props) {
   const rows = [
     {
       label: "Resting HR",
-      value: numberOrDash(wellness.restingHeartRate),
+      value: valueOrDash(wellness.restingHeartRate),
     },
     {
       label: "Sleep",
-      value:
-        wellness.sleepDurationSeconds === null
-          ? EMPTY_VALUE
-          : formatDuration(wellness.sleepDurationSeconds),
+      value: valueOrDash(wellness.sleep),
     },
     {
       label: "Sleep score",
-      value: numberOrDash(wellness.sleepScore),
+      value: valueOrDash(wellness.sleepScore),
     },
     {
       label: "Weight",
-      value:
-        wellness.bodyWeightKilograms === null
-          ? EMPTY_VALUE
-          : formatWeight(wellness.bodyWeightKilograms, useImperial),
+      value: valueOrDash(wellness.weight),
     },
     {
       // PerceivedHealthRating carries both a name and a 1-5 rating; the name
       // is what it exists for, so the number stays out of the UI.
       label: "Health",
-      value: textOrDash(wellness.perceivedHealthName),
+      value: valueOrDash(wellness.health),
     },
   ];
 
@@ -75,9 +60,7 @@ export default function DailyWellnessCard({ wellness, useImperial }: Props) {
   return (
     <Card>
       <div className={contentCls}>
-        <h3 className={dayCls}>
-          {formatDayLabel(wellness.dailyWellnessDate)}
-        </h3>
+        <h3 className={dayCls}>{wellness.dayLabel}</h3>
 
         <dl className={listCls}>
           {rows.map((row) => (

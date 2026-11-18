@@ -1,11 +1,9 @@
 import RaceRow from "@/components/RaceRow";
-import type { TrackedRace } from "@/lib/sample-data";
+import type { RaceRowDto } from "@/dto";
 
 type Props = {
-  races: TrackedRace[];
+  races: RaceRowDto[];
   today: string;
-  metersPerUnit: number;
-  unitAbbreviation: string;
 };
 
 /**
@@ -13,24 +11,19 @@ type Props = {
  * read forward in time. Races already run follow, most recent first — they are
  * history, and history is read backwards.
  */
-function raceOrder(races: TrackedRace[], today: string): TrackedRace[] {
+function raceOrder(races: RaceRowDto[], today: string): RaceRowDto[] {
   const upcoming = races
-    .filter((race) => race.raceDate >= today)
-    .sort((left, right) => left.raceDate.localeCompare(right.raceDate));
+    .filter((race) => race.dateKey >= today)
+    .sort((left, right) => left.dateKey.localeCompare(right.dateKey));
 
   const past = races
-    .filter((race) => race.raceDate < today)
-    .sort((left, right) => right.raceDate.localeCompare(left.raceDate));
+    .filter((race) => race.dateKey < today)
+    .sort((left, right) => right.dateKey.localeCompare(left.dateKey));
 
   return [...upcoming, ...past];
 }
 
-export default function RacePanel({
-  races,
-  today,
-  metersPerUnit,
-  unitAbbreviation,
-}: Props) {
+export default function RacePanel({ races, today }: Props) {
   const ordered = raceOrder(races, today);
 
   // #region Tailwind utility consts
@@ -46,12 +39,7 @@ export default function RacePanel({
   return (
     <>
       {ordered.map((race) => (
-        <RaceRow
-          key={race.id}
-          race={race}
-          metersPerUnit={metersPerUnit}
-          unitAbbreviation={unitAbbreviation}
-        />
+        <RaceRow key={race.id} race={race} />
       ))}
     </>
   );

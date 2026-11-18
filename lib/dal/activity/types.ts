@@ -48,9 +48,9 @@ export type StravaMigrationResult = {
 
 export interface IActivityAccess {
   /**
-   * Every completed activity for one athlete, newest first. Unbounded on
-   * purpose: the timeline shows all of them, and a window can be added when
-   * the volume justifies guessing at one.
+   * Every completed activity for one athlete, in no particular order (the
+   * component sorts). Unbounded on purpose: the timeline shows all of them,
+   * and a window can be added when the volume justifies guessing at one.
    */
   listActivities(athleteId: number): Promise<CompletedActivity[]>;
 

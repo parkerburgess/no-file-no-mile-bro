@@ -11,6 +11,8 @@ export type {
 
 export type { CompleteProfileInput } from "@/lib/dal/athlete/types";
 
+export type { DistanceUnitLookupItem } from "@/lib/dal/lookups/types";
+
 export type {
   StravaRawActivityInput,
   StravaRawZoneInput,

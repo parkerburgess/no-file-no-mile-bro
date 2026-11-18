@@ -29,9 +29,10 @@ export type DailyWellness = {
 
 export interface IWellnessAccess {
   /**
-   * Every wellness day for one athlete, newest first. Unbounded for the same
-   * reason listActivities is: the panel shows all of them, and a window can be
-   * added when the volume justifies picking one.
+   * Every wellness day for one athlete, in no particular order (the component
+   * sorts). Unbounded for the same reason listActivities is: the panel shows
+   * all of them, and a window can be added when the volume justifies picking
+   * one.
    */
   listDailyWellness(athleteId: number): Promise<DailyWellness[]>;
 }

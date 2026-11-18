@@ -268,7 +268,6 @@ export const sqlActivityAccess: IActivityAccess = {
           JOIN training.Sport S
             ON S.SportId = A.SportId
           WHERE A.AthleteId = @athleteId
-          ORDER BY A.StartedAt DESC
         `)
       );
 

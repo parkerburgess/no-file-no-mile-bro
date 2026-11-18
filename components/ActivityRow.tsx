@@ -1,18 +1,22 @@
 import { Badge } from "@parkerburgess/wandering-parker-ui";
-import type { CompletedActivity } from "@/lib/dal";
-import type { PlannedWorkout, TimelineItem } from "@/lib/sample-data";
-import {
-  formatDayLabel,
-  formatDistance,
-  formatDuration,
-  formatTimeOfDay,
-} from "@/lib/format";
+import type {
+  ActivityTimelineItemDto,
+  CompletedActivityRowDto,
+  PlannedWorkoutRowDto,
+} from "@/dto";
 
 type Props = {
-  item: TimelineItem;
-  metersPerUnit: number;
-  unitAbbreviation: string;
+  item: ActivityTimelineItemDto;
 };
+
+const EMPTY_VALUE = "—";
+
+function valueOrDash(value: string | null): string {
+  if (value === null) {
+    return EMPTY_VALUE;
+  }
+  return value;
+}
 
 function Metric({ label, value }: { label: string; value: string }) {
   // #region Tailwind utility consts
@@ -29,19 +33,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function CompletedRow({
-  activity,
-  metersPerUnit,
-  unitAbbreviation,
-}: {
-  activity: CompletedActivity;
-  metersPerUnit: number;
-  unitAbbreviation: string;
-}) {
-  const isAboveCeiling =
-    activity.secondsAboveHeartRateCeiling !== null &&
-    activity.secondsAboveHeartRateCeiling > 0;
-
+function CompletedRow({ activity }: { activity: CompletedActivityRowDto }) {
   // #region Tailwind utility consts
   const rowCls =
     "grid grid-cols-[7rem_1fr_auto] items-center gap-4 rounded-lg " +
@@ -59,8 +51,8 @@ function CompletedRow({
   return (
     <article className={rowCls}>
       <div className={whenCls}>
-        <span className={dayCls}>{formatDayLabel(activity.startedAt)}</span>
-        <span className={timeCls}>{formatTimeOfDay(activity.startedAt)}</span>
+        <span className={dayCls}>{activity.dayLabel}</span>
+        <span className={timeCls}>{activity.timeLabel}</span>
       </div>
 
       <div className={identityCls}>
@@ -71,56 +63,28 @@ function CompletedRow({
           <span className={subtitleCls}>{activity.name}</span>
         )}
         <span className={tagsCls}>
-          {isAboveCeiling && (
+          {activity.overCeilingDuration !== null && (
             <Badge color="warning">
-              {formatDuration(activity.secondsAboveHeartRateCeiling ?? 0)} over
-              ceiling
+              {activity.overCeilingDuration} over ceiling
             </Badge>
           )}
         </span>
       </div>
 
       <div className={metricsCls}>
-        <Metric label="Time" value={formatDuration(activity.durationSeconds)} />
-        <Metric
-          label="Distance"
-          value={
-            activity.distanceMeters === null
-              ? "—"
-              : formatDistance(
-                  activity.distanceMeters,
-                  metersPerUnit,
-                  unitAbbreviation
-                )
-          }
-        />
+        <Metric label="Time" value={activity.duration} />
+        <Metric label="Distance" value={valueOrDash(activity.distance)} />
         <Metric
           label="Avg HR"
-          value={
-            activity.averageHeartRate === null
-              ? "—"
-              : `${activity.averageHeartRate}`
-          }
+          value={valueOrDash(activity.averageHeartRate)}
         />
       </div>
     </article>
   );
 }
 
-function PlannedRow({
-  workout,
-  metersPerUnit,
-  unitAbbreviation,
-}: {
-  workout: PlannedWorkout;
-  metersPerUnit: number;
-  unitAbbreviation: string;
-}) {
+function PlannedRow({ workout }: { workout: PlannedWorkoutRowDto }) {
   const race = workout.race;
-  const sportLabel =
-    workout.environmentName === null
-      ? workout.sportName
-      : `${workout.sportName} · ${workout.environmentName}`;
 
   // #region Tailwind utility consts
   const baseRowCls =
@@ -149,7 +113,7 @@ function PlannedRow({
   return (
     <article className={race === null ? plannedRowCls : raceRowCls}>
       <div className={whenCls}>
-        <span className={dayCls}>{formatDayLabel(workout.scheduledDate)}</span>
+        <span className={dayCls}>{workout.dayLabel}</span>
         <span className={race === null ? kindCls : raceKindCls}>
           {race === null ? "Planned" : "Race"}
         </span>
@@ -157,79 +121,42 @@ function PlannedRow({
 
       <div className={identityCls}>
         {race === null ? (
-          <span className={titleCls}>{sportLabel}</span>
+          <span className={titleCls}>{workout.sportLabel}</span>
         ) : (
           <>
             <span className={raceTitleCls}>{race.name}</span>
-            <span className={subtitleCls}>{sportLabel}</span>
+            <span className={subtitleCls}>{workout.sportLabel}</span>
           </>
         )}
         <span className={tagsCls}>
           {race === null ? (
             <Badge color="neutral">{workout.workoutTypeName}</Badge>
           ) : (
-            <Badge color="primary">
-              {race.priorityCode} · {race.priorityName}
-            </Badge>
+            <Badge color="primary">{race.priorityLabel}</Badge>
           )}
           {workout.isSkipped && <Badge color="danger">Skipped</Badge>}
         </span>
       </div>
 
       <div className={metricsCls}>
-        <Metric
-          label="Target"
-          value={
-            workout.targetDurationSeconds === null
-              ? "—"
-              : formatDuration(workout.targetDurationSeconds)
-          }
-        />
+        <Metric label="Target" value={valueOrDash(workout.targetDuration)} />
         <Metric
           label="Distance"
-          value={
-            workout.targetDistanceMeters === null
-              ? "—"
-              : formatDistance(
-                  workout.targetDistanceMeters,
-                  metersPerUnit,
-                  unitAbbreviation
-                )
-          }
+          value={valueOrDash(workout.targetDistance)}
         />
         <Metric
           label="HR cap"
-          value={
-            workout.heartRateCeiling === null
-              ? "—"
-              : `${workout.heartRateCeiling}`
-          }
+          value={valueOrDash(workout.heartRateCeiling)}
         />
       </div>
     </article>
   );
 }
 
-export default function ActivityRow({
-  item,
-  metersPerUnit,
-  unitAbbreviation,
-}: Props) {
+export default function ActivityRow({ item }: Props) {
   if (item.kind === "activity") {
-    return (
-      <CompletedRow
-        activity={item}
-        metersPerUnit={metersPerUnit}
-        unitAbbreviation={unitAbbreviation}
-      />
-    );
+    return <CompletedRow activity={item} />;
   }
 
-  return (
-    <PlannedRow
-      workout={item}
-      metersPerUnit={metersPerUnit}
-      unitAbbreviation={unitAbbreviation}
-    />
-  );
+  return <PlannedRow workout={item} />;
 }

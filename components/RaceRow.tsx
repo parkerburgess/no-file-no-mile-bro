@@ -2,17 +2,10 @@
 
 import { useState } from "react";
 import { Badge } from "@parkerburgess/wandering-parker-ui";
-import type { TrackedRace } from "@/lib/sample-data";
-import {
-  formatDayLabel,
-  formatDistance,
-  formatDuration,
-} from "@/lib/format";
+import type { RaceRowDto } from "@/dto";
 
 type Props = {
-  race: TrackedRace;
-  metersPerUnit: number;
-  unitAbbreviation: string;
+  race: RaceRowDto;
 };
 
 /**
@@ -78,11 +71,7 @@ function notesCls(isExpanded: boolean): string {
   return `${baseCls} line-clamp-2`;
 }
 
-export default function RaceRow({
-  race,
-  metersPerUnit,
-  unitAbbreviation,
-}: Props) {
+export default function RaceRow({ race }: Props) {
   const [isInPlan, setIsInPlan] = useState(race.isInPlan);
   const [areNotesExpanded, setAreNotesExpanded] = useState(false);
 
@@ -122,8 +111,8 @@ export default function RaceRow({
   return (
     <article className={rowCls(isInPlan)}>
       <div className={whenCls}>
-        <span className={dayCls}>{formatDayLabel(race.raceDate)}</span>
-        <span className={yearCls}>{race.raceDate.slice(0, 4)}</span>
+        <span className={dayCls}>{race.dayLabel}</span>
+        <span className={yearCls}>{race.yearLabel}</span>
       </div>
 
       <div className={identityCls}>
@@ -131,25 +120,20 @@ export default function RaceRow({
 
         <span className={subtitleCls}>
           {race.sportName} ·{" "}
-          {formatDistance(race.distanceMeters, metersPerUnit, unitAbbreviation)}
+          {race.distance}
           {race.location !== null && ` · ${race.location}`}
         </span>
 
         <span className={tagsCls}>
           <Badge color="primary">
-            {race.priorityCode} · {race.priorityName}
+            {race.priorityLabel}
           </Badge>
-          {race.actualDurationSeconds !== null && (
-            <Badge color="neutral">
-              Finished {formatDuration(race.actualDurationSeconds)}
-            </Badge>
+          {race.finishedDuration !== null && (
+            <Badge color="neutral">Finished {race.finishedDuration}</Badge>
           )}
-          {race.actualDurationSeconds === null &&
-            race.goalDurationSeconds !== null && (
-              <Badge color="neutral">
-                Goal {formatDuration(race.goalDurationSeconds)}
-              </Badge>
-            )}
+          {race.finishedDuration === null && race.goalDuration !== null && (
+            <Badge color="neutral">Goal {race.goalDuration}</Badge>
+          )}
         </span>
 
         {race.notes !== null && (

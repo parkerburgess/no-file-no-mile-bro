@@ -3,14 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@parkerburgess/wandering-parker-ui";
-import type { SkippedStravaActivity } from "@/lib/dal";
-
-type PullResponse = {
-  activitiesSaved: number;
-  zonesSaved: number;
-  activitiesMigrated: number;
-  activitiesSkipped: SkippedStravaActivity[];
-};
+import type { PullStravaResultDto } from "@/dto";
 
 type ErrorResponse = {
   error: string;
@@ -30,7 +23,7 @@ export default function PullStravaAction() {
   /* A pull can stage nothing new and still promote a raw row an earlier pull
      left behind, so the migrated count decides "nothing happened", not the
      saved count on its own. */
-  function describeResult(result: PullResponse): string {
+  function describeResult(result: PullStravaResultDto): string {
     if (result.activitiesSaved === 0 && result.activitiesMigrated === 0) {
       return "No new activities";
     }
@@ -63,7 +56,7 @@ export default function PullStravaAction() {
         return;
       }
 
-      const result = (await response.json()) as PullResponse;
+      const result = (await response.json()) as PullStravaResultDto;
       setPullMessage(describeResult(result));
 
       /* The pull migrates what it stages into training.Activity, so the

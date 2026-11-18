@@ -1,10 +1,8 @@
 import ActivityRow from "@/components/ActivityRow";
-import type { TimelineItem } from "@/lib/sample-data";
+import type { ActivityTimelineItemDto } from "@/dto";
 
 type Props = {
-  items: TimelineItem[];
-  metersPerUnit: number;
-  unitAbbreviation: string;
+  items: ActivityTimelineItemDto[];
 };
 
 /**
@@ -12,18 +10,14 @@ type Props = {
  * a workout still to be done belongs above the ones already completed that
  * same day.
  */
-function sortKey(item: TimelineItem): string {
+function sortKey(item: ActivityTimelineItemDto): string {
   if (item.kind === "activity") {
-    return item.startedAt;
+    return item.sortKey;
   }
-  return `${item.scheduledDate}T23:59:59`;
+  return `${item.sortKey}T23:59:59`;
 }
 
-export default function ActivityPanel({
-  items,
-  metersPerUnit,
-  unitAbbreviation,
-}: Props) {
+export default function ActivityPanel({ items }: Props) {
   const mostRecentFirst = [...items].sort((left, right) =>
     sortKey(right).localeCompare(sortKey(left))
   );
@@ -43,12 +37,7 @@ export default function ActivityPanel({
   return (
     <>
       {mostRecentFirst.map((item) => (
-        <ActivityRow
-          key={`${item.kind}-${item.id}`}
-          item={item}
-          metersPerUnit={metersPerUnit}
-          unitAbbreviation={unitAbbreviation}
-        />
+        <ActivityRow key={`${item.kind}-${item.id}`} item={item} />
       ))}
     </>
   );

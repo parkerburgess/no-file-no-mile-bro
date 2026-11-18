@@ -1,23 +1,21 @@
 import { Panel } from "@parkerburgess/wandering-parker-ui";
 import AddEditWellnessModal from "@/components/AddEditWellnessModal";
 import DailyWellnessCard from "@/components/DailyWellnessCard";
-import type { DailyWellness } from "@/lib/dal";
+import type { WellnessCardDto, WellnessFormDto } from "@/dto";
 
 type Props = {
-  days: DailyWellness[];
+  days: WellnessCardDto[];
+  formDays: WellnessFormDto[];
   healthRatingNames: string[];
-  useImperial: boolean;
 };
 
 export default function WellnessPanel({
   days,
+  formDays,
   healthRatingNames,
-  useImperial,
 }: Props) {
-  // The DAL already returns these newest first. Sorting again keeps the panel
-  // correct for any caller that does not, since it is a prop and not a query.
   const mostRecentFirst = [...days].sort((left, right) =>
-    right.dailyWellnessDate.localeCompare(left.dailyWellnessDate)
+    right.dateKey.localeCompare(left.dateKey)
   );
 
   // #region Tailwind utility consts
@@ -32,7 +30,7 @@ export default function WellnessPanel({
     return (
       <Panel title="Daily">
         <AddEditWellnessModal
-          days={mostRecentFirst}
+          days={formDays}
           healthRatingNames={healthRatingNames}
         />
         <p className={emptyCls}>No wellness entries recorded yet.</p>
@@ -43,16 +41,12 @@ export default function WellnessPanel({
   return (
     <Panel title="Daily">
       <AddEditWellnessModal
-        days={mostRecentFirst}
+        days={formDays}
         healthRatingNames={healthRatingNames}
       />
 
       {mostRecentFirst.map((day) => (
-        <DailyWellnessCard
-          key={day.id}
-          wellness={day}
-          useImperial={useImperial}
-        />
+        <DailyWellnessCard key={day.id} wellness={day} />
       ))}
     </Panel>
   );

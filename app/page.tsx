@@ -1,10 +1,21 @@
 import { requireAthlete } from "@/lib/auth";
 import { dal } from "@/lib/dal";
-import { distanceUnitAbbreviation } from "@/lib/format";
 import { parseTabId } from "@/lib/tabs";
 import type { TabId } from "@/lib/tabs";
 import { samplePlannedWorkouts, sampleRaces } from "@/lib/sample-data";
 import type { CompletedActivity } from "@/lib/dal";
+import type { ActivityTimelineItemDto } from "@/dto";
+import {
+  toCompletedActivityRowDto,
+  toPlannedWorkoutRowDto,
+} from "@/lib/hydrate/activities";
+import { toRaceRowDto } from "@/lib/hydrate/races";
+import { toUnitDisplay } from "@/lib/hydrate/units";
+import type { UnitDisplay } from "@/lib/hydrate/units";
+import {
+  toWellnessCardDto,
+  toWellnessFormDto,
+} from "@/lib/hydrate/wellness";
 import WellnessPanel from "@/components/WellnessPanel";
 import TabbedPanel from "@/components/TabbedPanel";
 import ActivityPanel from "@/components/ActivityPanel";
@@ -24,27 +35,18 @@ type Props = {
 function activeTabContent(
   activeTabId: TabId,
   today: string,
-  metersPerUnit: number,
-  unitAbbreviation: string,
+  units: UnitDisplay,
   activities: CompletedActivity[]
 ): React.ReactNode {
   switch (activeTabId) {
     case "activities":
-      return (
-        <ActivityPanel
-          items={[...activities, ...samplePlannedWorkouts]}
-          metersPerUnit={metersPerUnit}
-          unitAbbreviation={unitAbbreviation}
-        />
-      );
+      return <ActivityPanel items={toTimelineItems(activities, units)} />;
 
     case "races":
       return (
         <RacePanel
-          races={sampleRaces}
+          races={sampleRaces.map((race) => toRaceRowDto(race, units))}
           today={today}
-          metersPerUnit={metersPerUnit}
-          unitAbbreviation={unitAbbreviation}
         />
       );
 
@@ -87,6 +89,23 @@ function activeTabContent(
 }
 
 /**
+ * The timeline mixes real activities with placeholder planned workouts from
+ * lib/sample-data; both are hydrated to the same row DTO union here.
+ */
+function toTimelineItems(
+  activities: CompletedActivity[],
+  units: UnitDisplay
+): ActivityTimelineItemDto[] {
+  const completed = activities.map((activity) =>
+    toCompletedActivityRowDto(activity, units)
+  );
+  const planned = samplePlannedWorkouts.map((workout) =>
+    toPlannedWorkoutRowDto(workout, units)
+  );
+  return [...completed, ...planned];
+}
+
+/**
  * Only the activities tab reads them, and only the active tab's panel is
  * built, so the query is skipped entirely on every other tab.
  */
@@ -124,6 +143,7 @@ export default async function HomePage({ searchParams }: Props) {
   const distanceUnit =
     lookups.distanceUnits.find((unit) => unit.id === athlete.distanceUnitId) ??
     lookups.distanceUnits[0];
+  const units = toUnitDisplay(distanceUnit);
 
   // #region Tailwind utility consts
   // The row track has to be explicit rather than conditional-free: with the
@@ -156,19 +176,13 @@ export default async function HomePage({ searchParams }: Props) {
 
       <div className={columnsCls}>
         <WellnessPanel
-          days={wellness}
+          days={wellness.map((day) => toWellnessCardDto(day, units))}
+          formDays={wellness.map(toWellnessFormDto)}
           healthRatingNames={healthRatingNames}
-          useImperial={distanceUnit.code === "MILE"}
         />
 
         <TabbedPanel activeTabId={activeTabId}>
-          {activeTabContent(
-            activeTabId,
-            today,
-            distanceUnit.metersPerUnit,
-            distanceUnitAbbreviation(distanceUnit.code),
-            activities
-          )}
+          {activeTabContent(activeTabId, today, units, activities)}
         </TabbedPanel>
 
         <FriendsPanel />

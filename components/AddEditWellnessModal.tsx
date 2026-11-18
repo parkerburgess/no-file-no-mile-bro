@@ -8,38 +8,17 @@ import {
   Select,
   Textarea,
 } from "@parkerburgess/wandering-parker-ui";
-import type { DailyWellness } from "@/lib/dal";
+import type { WellnessFormDto } from "@/dto";
 
 type Props = {
-  days: DailyWellness[];
+  days: WellnessFormDto[];
   healthRatingNames: string[];
 };
 
 type RecordFieldsProps = {
-  wellness: DailyWellness;
+  wellness: WellnessFormDto;
   healthRatingNames: string[];
 };
-
-const SECONDS_PER_MINUTE = 60;
-
-/**
- * Sleep is stored in seconds because that is what the sources report, but a
- * field asking for 27000 is unusable. The form works in minutes and converts
- * at its own edge, the same way distances and weights convert at the UI edge.
- */
-function toMinutesValue(seconds: number | null): string {
-  if (seconds === null) {
-    return "";
-  }
-  return String(Math.round(seconds / SECONDS_PER_MINUTE));
-}
-
-function toFieldValue(value: number | string | null): string {
-  if (value === null) {
-    return "";
-  }
-  return String(value);
-}
 
 /**
  * One existing row's fields, prefilled and editable. Uncontrolled on purpose:
@@ -65,45 +44,45 @@ function WellnessRecordFields({
           id={`${fieldIdPrefix}-date`}
           label="Date"
           type="date"
-          defaultValue={wellness.dailyWellnessDate}
+          defaultValue={wellness.date}
         />
         <Input
           id={`${fieldIdPrefix}-resting-hr`}
           label="Resting HR"
           type="number"
-          defaultValue={toFieldValue(wellness.restingHeartRate)}
+          defaultValue={wellness.restingHeartRate}
         />
         <Input
           id={`${fieldIdPrefix}-sleep`}
           label="Sleep (min)"
           type="number"
-          defaultValue={toMinutesValue(wellness.sleepDurationSeconds)}
+          defaultValue={wellness.sleepMinutes}
         />
         <Input
           id={`${fieldIdPrefix}-sleep-score`}
           label="Sleep score"
           type="number"
-          defaultValue={toFieldValue(wellness.sleepScore)}
+          defaultValue={wellness.sleepScore}
         />
         <Input
           id={`${fieldIdPrefix}-weight`}
           label="Weight (kg)"
           type="number"
           step="0.01"
-          defaultValue={toFieldValue(wellness.bodyWeightKilograms)}
+          defaultValue={wellness.bodyWeightKilograms}
         />
         <Select
           id={`${fieldIdPrefix}-health`}
           label="Health"
           options={healthRatingNames}
-          defaultValue={toFieldValue(wellness.perceivedHealthName)}
+          defaultValue={wellness.health}
         />
         <Input
           id={`${fieldIdPrefix}-notes`}
           label="Notes"
           type="text"
           className={fullWidthFieldCls}
-          defaultValue={toFieldValue(wellness.notes)}
+          defaultValue={wellness.notes}
           placeholder="No notes"
         />
       </div>
@@ -124,6 +103,10 @@ export default function AddEditWellnessModal({
   healthRatingNames,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const mostRecentFirst = [...days].sort((left, right) =>
+    right.date.localeCompare(left.date)
+  );
 
   function handleOpen() {
     setIsOpen(true);
@@ -235,11 +218,11 @@ export default function AddEditWellnessModal({
             <section className={sectionCls}>
               <h3 className={sectionHeadingCls}>Recorded days</h3>
 
-              {days.length === 0 ? (
+              {mostRecentFirst.length === 0 ? (
                 <p className={emptyCls}>No wellness entries recorded yet.</p>
               ) : (
                 <div className={recordListCls}>
-                  {days.map((day) => (
+                  {mostRecentFirst.map((day) => (
                     <WellnessRecordFields
                       key={day.id}
                       wellness={day}

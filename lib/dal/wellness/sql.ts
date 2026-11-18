@@ -53,7 +53,6 @@ export const sqlWellnessAccess: IWellnessAccess = {
             LEFT JOIN training.PerceivedHealthRating PHR
               ON PHR.PerceivedHealthRatingId = DW.PerceivedHealthRatingId
             WHERE DW.AthleteId = @athleteId
-            ORDER BY DW.DailyWellnessDate DESC
           `)
       );
 

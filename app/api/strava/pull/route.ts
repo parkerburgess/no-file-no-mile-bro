@@ -3,6 +3,7 @@ import { dal } from "@/lib/dal";
 import { resolveAthleteAccess } from "@/lib/auth";
 import { forbidden, serverError } from "@/lib/api-response";
 import { pullNewStravaData } from "@/lib/strava";
+import { toPullStravaResultDto } from "@/lib/hydrate/strava";
 import type { ActivityZones, StravaActivity } from "@/lib/strava";
 import type {
   StravaRawActivityInput,
@@ -87,12 +88,9 @@ export async function POST() {
        picks up anything an earlier pull staged and left unpromoted. */
     const migration = await dal.activity.migrateStravaActivities();
 
-    return NextResponse.json({
-      activitiesSaved,
-      zonesSaved,
-      activitiesMigrated: migration.migrated,
-      activitiesSkipped: migration.skipped,
-    });
+    return NextResponse.json(
+      toPullStravaResultDto(activitiesSaved, zonesSaved, migration)
+    );
   } catch (error) {
     const reason = error instanceof Error ? error.message : "Unknown error.";
     return serverError(`Strava pull failed: ${reason}`);
