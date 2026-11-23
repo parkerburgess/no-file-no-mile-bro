@@ -1,10 +1,5 @@
-import type { CompletedActivity } from "@/lib/dal";
-import type { PlannedRace, PlannedWorkout } from "@/lib/sample-data";
-import type {
-  CompletedActivityRowDto,
-  PlannedRaceDto,
-  PlannedWorkoutRowDto,
-} from "@/dto";
+import type { Activity } from "@/lib/dal";
+import type { ActivityCardDto, ActivityFormDto } from "@/dto";
 import { SPEED_SPORT_CODES } from "@/lib/config";
 import {
   formatDayLabel,
@@ -14,16 +9,22 @@ import {
 } from "@/lib/format";
 import {
   formatDistanceOrNull,
-  formatDurationOrNull,
   stringOrNull,
+  toFieldValue,
 } from "@/lib/hydrate/units";
 import type { UnitDisplay } from "@/lib/hydrate/units";
 
-function overCeilingDuration(seconds: number | null): string | null {
-  if (seconds === null || seconds <= 0) {
-    return null;
-  }
-  return formatDuration(seconds);
+const SECONDS_PER_MINUTE = 60;
+
+/** "yyyy-MM-ddTHH:mm", the shape a datetime-local input takes. */
+const DATETIME_LOCAL_LENGTH = 16;
+
+/**
+ * Duration is stored in seconds, but a field asking for 2662 is unusable, so
+ * the form works in minutes.
+ */
+function toMinutesValue(seconds: number): string {
+  return String(Math.round(seconds / SECONDS_PER_MINUTE));
 }
 
 function isSpeedSport(sportCode: string): boolean {
@@ -38,10 +39,7 @@ function paceLabel(sportCode: string): string {
 }
 
 /** Pace for most sports, speed for the ones in SPEED_SPORT_CODES. */
-function paceOrNull(
-  activity: CompletedActivity,
-  units: UnitDisplay
-): string | null {
+function paceOrNull(activity: Activity, units: UnitDisplay): string | null {
   if (activity.distanceMeters === null || activity.distanceMeters <= 0) {
     return null;
   }
@@ -64,29 +62,11 @@ function paceOrNull(
   );
 }
 
-function sportLabel(workout: PlannedWorkout): string {
-  if (workout.environmentName === null) {
-    return workout.sportName;
-  }
-  return `${workout.sportName} · ${workout.environmentName}`;
-}
-
-function toPlannedRaceDto(race: PlannedRace | null): PlannedRaceDto | null {
-  if (race === null) {
-    return null;
-  }
-  return {
-    name: race.name,
-    priorityLabel: `${race.priorityCode} · ${race.priorityName}`,
-  };
-}
-
-export function toCompletedActivityRowDto(
-  activity: CompletedActivity,
+export function toActivityCardDto(
+  activity: Activity,
   units: UnitDisplay
-): CompletedActivityRowDto {
+): ActivityCardDto {
   return {
-    kind: "activity",
     id: String(activity.id),
     sortKey: activity.startedAt,
     dayLabel: formatDayLabel(activity.startedAt),
@@ -100,21 +80,15 @@ export function toCompletedActivityRowDto(
   };
 }
 
-export function toPlannedWorkoutRowDto(
-  workout: PlannedWorkout,
-  units: UnitDisplay
-): PlannedWorkoutRowDto {
+export function toActivityFormDto(activity: Activity): ActivityFormDto {
   return {
-    kind: "planned",
-    id: String(workout.id),
-    sortKey: workout.scheduledDate,
-    dayLabel: formatDayLabel(workout.scheduledDate),
-    sportLabel: sportLabel(workout),
-    workoutTypeName: workout.workoutTypeName,
-    race: toPlannedRaceDto(workout.race),
-    isSkipped: workout.isSkipped,
-    targetDuration: formatDurationOrNull(workout.targetDurationSeconds),
-    targetDistance: formatDistanceOrNull(workout.targetDistanceMeters, units),
-    heartRateCeiling: stringOrNull(workout.heartRateCeiling),
+    id: String(activity.id),
+    startedAt: activity.startedAt.slice(0, DATETIME_LOCAL_LENGTH),
+    sportName: activity.sportName,
+    durationMinutes: toMinutesValue(activity.durationSeconds),
+    distanceMeters: toFieldValue(activity.distanceMeters),
+    averageHeartRate: toFieldValue(activity.averageHeartRate),
+    maxHeartRate: toFieldValue(activity.maxHeartRate),
+    notes: toFieldValue(activity.name),
   };
 }

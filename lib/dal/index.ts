@@ -17,7 +17,7 @@ function selectDataAccess(): IDataAccess {
 
 export const dal: IDataAccess = selectDataAccess();
 
-export type { CompletedActivity } from "@/lib/dal/activity/types";
+export type { Activity } from "@/lib/dal/activity/types";
 
 export type { CompleteProfileInput } from "@/lib/dal/athlete/types";
 

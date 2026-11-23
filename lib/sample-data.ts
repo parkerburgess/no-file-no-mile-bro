@@ -1,119 +1,13 @@
 /**
  * PLACEHOLDER DATA — NOT REAL, NOT FROM THE DATABASE.
  *
- * Completed activities and wellness days are no longer here: they come from
- * training.Activity and training.DailyWellness through lib/dal/activity and
- * lib/dal/wellness. What is left waits on the plan DAL, which does not exist
- * yet, so the layout can still be designed at realistic density. The types
- * below deliberately mirror training.TrainingPlanWorkout and training.Race so
- * each swap is mechanical.
+ * Races wait on a race/plan DAL, which does not exist yet, so the layout can
+ * still be designed at realistic density. The type below deliberately mirrors
+ * training.Race so the swap is mechanical.
  *
  * Values are stored the way the database stores them — canonical metric,
  * seconds, kilograms — and converted at the UI edge.
  */
-
-import type { CompletedActivity } from "@/lib/dal";
-
-/**
- * A race is not a separate kind of row — the schema models it as an ordinary
- * TrainingPlanWorkout whose WorkoutType is RACE, joined to a Race record
- * through trainingplan_race. This carries that joined record when there is
- * one.
- */
-export type PlannedRace = {
-  name: string;
-  priorityCode: "A" | "B" | "C";
-  priorityName: string;
-};
-
-export type PlannedWorkout = {
-  kind: "planned";
-  id: number;
-  sportName: string;
-  environmentName: string | null;
-  workoutTypeName: string;
-  scheduledDate: string;
-  targetDurationSeconds: number | null;
-  targetDistanceMeters: number | null;
-  heartRateCeiling: number | null;
-  isAerobicCapped: boolean;
-  isSkipped: boolean;
-  race: PlannedRace | null;
-};
-
-export type TimelineItem = CompletedActivity | PlannedWorkout;
-
-/* The timeline mixes a real table with placeholder rows, which is the whole
-   reason CompletedActivity is imported rather than declared here. */
-
-/**
- * Planned workouts only. The completed side of the timeline is read from
- * training.Activity, so these are the rows that still have no table behind
- * them.
- */
-export const samplePlannedWorkouts: PlannedWorkout[] = [
-  {
-    kind: "planned",
-    id: 502,
-    sportName: "Run",
-    environmentName: "Road",
-    workoutTypeName: "Race",
-    scheduledDate: "2026-11-14",
-    targetDurationSeconds: null,
-    targetDistanceMeters: 5000,
-    // WorkoutType RACE is the one aerobic-uncapped type, so no HR ceiling.
-    heartRateCeiling: null,
-    isAerobicCapped: false,
-    isSkipped: false,
-    race: {
-      name: "Harvest Hustle 5K",
-      priorityCode: "B",
-      priorityName: "Tune-up",
-    },
-  },
-  {
-    kind: "planned",
-    id: 501,
-    sportName: "Run",
-    environmentName: "Road",
-    workoutTypeName: "Long Aerobic",
-    scheduledDate: "2026-09-23",
-    targetDurationSeconds: 5400,
-    targetDistanceMeters: 16093,
-    heartRateCeiling: 139,
-    isAerobicCapped: true,
-    isSkipped: false,
-    race: null,
-  },
-  {
-    kind: "planned",
-    id: 500,
-    sportName: "Cycling",
-    environmentName: "Stationary",
-    workoutTypeName: "Cross Training",
-    scheduledDate: "2026-09-22",
-    targetDurationSeconds: 2700,
-    targetDistanceMeters: null,
-    heartRateCeiling: 139,
-    isAerobicCapped: true,
-    isSkipped: false,
-    race: null,
-  },
-  {
-    kind: "planned",
-    id: 499,
-    sportName: "Run",
-    environmentName: "Road",
-    workoutTypeName: "Aerobic Base",
-    scheduledDate: "2026-09-19",
-    targetDurationSeconds: 2400,
-    targetDistanceMeters: null,
-    heartRateCeiling: 139,
-    isAerobicCapped: true,
-    isSkipped: true,
-    race: null,
-  },
-];
 
 /**
  * A race the athlete is tracking, mirroring training.Race.

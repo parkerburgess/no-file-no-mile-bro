@@ -6,7 +6,7 @@ import {
   formatHoursMinutes,
   formatWeight,
 } from "@/lib/format";
-import { stringOrNull } from "@/lib/hydrate/units";
+import { stringOrNull, toFieldValue } from "@/lib/hydrate/units";
 import type { UnitDisplay } from "@/lib/hydrate/units";
 
 const SECONDS_PER_MINUTE = 60;
@@ -33,13 +33,6 @@ function countOrNull(count: number | null): string | null {
     return null;
   }
   return formatCount(count);
-}
-
-function toFieldValue(value: number | string | null): string {
-  if (value === null) {
-    return "";
-  }
-  return String(value);
 }
 
 /**

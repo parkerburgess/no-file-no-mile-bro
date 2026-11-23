@@ -6,15 +6,12 @@
  */
 
 /**
- * One completed activity, as the activity timeline renders it. `kind` is the
- * timeline's discriminant against a planned workout, which still comes from
- * lib/sample-data until a plan DAL exists.
+ * One completed activity.
  *
  * training.Activity carries no name column, so `name` is Notes — the one
  * free-text field on the row.
  */
-export type CompletedActivity = {
-  kind: "activity";
+export type Activity = {
   id: number;
   /** training.Sport.Code, e.g. "RUN" or "CYCLE". */
   sportCode: string;
@@ -29,9 +26,9 @@ export type CompletedActivity = {
 
 export interface IActivityAccess {
   /**
-   * Every completed activity for one athlete, in no particular order (the
-   * component sorts). Unbounded on purpose: the timeline shows all of them,
-   * and a window can be added when the volume justifies guessing at one.
+   * Every activity for one athlete, in no particular order (the component
+   * sorts). Unbounded on purpose: the page shows all of them, and a window can
+   * be added when the volume justifies guessing at one.
    */
-  listActivities(athleteId: number): Promise<CompletedActivity[]>;
+  listActivities(athleteId: number): Promise<Activity[]>;
 }

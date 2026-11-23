@@ -4,8 +4,7 @@
 // arrive already formatted; a null means "absent" and the component decides
 // how absent reads.
 
-export interface CompletedActivityRowDto {
-  kind: "activity";
+export interface ActivityCardDto {
   id: string;
   sortKey: string;  // ISO timestamp the activity started
   dayLabel: string; // "Tue, Sep 23"
@@ -20,25 +19,19 @@ export interface CompletedActivityRowDto {
   maxHeartRate: string | null;
 }
 
-export interface PlannedRaceDto {
-  name: string;
-  priorityLabel: string; // "B · Tune-up"
-}
-
-export interface PlannedWorkoutRowDto {
-  kind: "planned";
+/**
+ * Prefill values for one recorded activity in the edit form. Every field is
+ * the string an input expects, with "" for an empty value. Duration is in
+ * minutes and distance in meters, matching the form's labels. The sport is
+ * its name, because that is the value the sport select uses.
+ */
+export interface ActivityFormDto {
   id: string;
-  sortKey: string;    // "yyyy-MM-dd", the scheduled day
-  dayLabel: string;   // "Tue, Sep 23"
-  sportLabel: string; // "Run · Road"
-  workoutTypeName: string;
-  race: PlannedRaceDto | null;
-  isSkipped: boolean;
-  targetDuration: string | null;
-  targetDistance: string | null;
-  heartRateCeiling: string | null;
+  startedAt: string; // "yyyy-MM-ddTHH:mm" (UTC), also the sort key
+  sportName: string;
+  durationMinutes: string;
+  distanceMeters: string;
+  averageHeartRate: string;
+  maxHeartRate: string;
+  notes: string;
 }
-
-export type ActivityTimelineItemDto =
-  | CompletedActivityRowDto
-  | PlannedWorkoutRowDto;

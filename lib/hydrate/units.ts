@@ -59,3 +59,11 @@ export function stringOrNull(value: number | null): string | null {
   }
   return String(value);
 }
+
+/** A form input's value: the number or string as text, "" when absent. */
+export function toFieldValue(value: number | string | null): string {
+  if (value === null) {
+    return "";
+  }
+  return String(value);
+}

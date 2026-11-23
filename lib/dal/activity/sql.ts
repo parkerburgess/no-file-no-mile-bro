@@ -1,10 +1,7 @@
 import sql from "mssql";
 import { executeQuery } from "@parkerburgess/wandering-parker-server";
 import { toTimestamp } from "@/lib/dal/mapping";
-import type {
-  CompletedActivity,
-  IActivityAccess,
-} from "@/lib/dal/activity/types";
+import type { Activity, IActivityAccess } from "@/lib/dal/activity/types";
 
 type ActivityRow = {
   ActivityId: number;
@@ -18,9 +15,8 @@ type ActivityRow = {
   MaxHeartRate: number | null;
 };
 
-function toCompletedActivity(row: ActivityRow): CompletedActivity {
+function toActivity(row: ActivityRow): Activity {
   return {
-    kind: "activity",
     id: row.ActivityId,
     sportCode: row.SportCode,
     sportName: row.SportName,
@@ -37,7 +33,7 @@ function toCompletedActivity(row: ActivityRow): CompletedActivity {
 }
 
 export const sqlActivityAccess: IActivityAccess = {
-  async listActivities(athleteId: number): Promise<CompletedActivity[]> {
+  async listActivities(athleteId: number): Promise<Activity[]> {
     try {
       const result = await executeQuery((request) =>
         request.input("athleteId", sql.Int, athleteId).query<ActivityRow>(`
@@ -57,7 +53,7 @@ export const sqlActivityAccess: IActivityAccess = {
         `)
       );
 
-      return result.recordset.map(toCompletedActivity);
+      return result.recordset.map(toActivity);
     } catch (err) {
       console.error("[DAL] activity.listActivities failed", { err });
       throw err;
