@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { decodeJwt } from "jose";
 import { getUserId } from "@parkerburgess/wandering-parker-server";
 import { dal } from "@/lib/dal";
+import { isDevBypass } from "@/lib/dev-mode";
 import type { Athlete } from "@/lib/dal/athlete/types";
 
 const DEV_EMAIL = "dev@localhost";
@@ -16,7 +17,7 @@ export type AthleteAccess =
   | { status: "denied"; userId: string };
 
 function isAuthDisabled(): boolean {
-  return process.env.DISABLE_AUTH === "true" && process.env.NODE_ENV !== "production";
+  return isDevBypass();
 }
 
 /**

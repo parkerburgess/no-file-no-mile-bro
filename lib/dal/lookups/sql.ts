@@ -3,7 +3,6 @@ import type {
   DistanceUnitLookupItem,
   ILookupAccess,
   Lookups,
-  PerceivedHealthRatingLookupItem,
   SportLookupItem,
   WorkoutTypeLookupItem,
 } from "@/lib/dal/lookups/types";
@@ -28,13 +27,6 @@ type DistanceUnitRow = {
   Code: string;
   Name: string;
   MetersPerUnit: number;
-};
-
-type PerceivedHealthRatingRow = {
-  PerceivedHealthRatingId: number;
-  Code: string;
-  Name: string;
-  Rating: number;
 };
 
 function toSport(row: SportRow): SportLookupItem {
@@ -65,21 +57,10 @@ function toDistanceUnit(row: DistanceUnitRow): DistanceUnitLookupItem {
   };
 }
 
-function toPerceivedHealthRating(
-  row: PerceivedHealthRatingRow
-): PerceivedHealthRatingLookupItem {
-  return {
-    id: row.PerceivedHealthRatingId,
-    code: row.Code,
-    name: row.Name,
-    rating: row.Rating,
-  };
-}
-
 export const sqlLookupAccess: ILookupAccess = {
   async getAll(): Promise<Lookups> {
     try {
-      const [sports, workoutTypes, distanceUnits, perceivedHealthRatings] =
+      const [sports, workoutTypes, distanceUnits] =
         await Promise.all([
           executeQuery((request) =>
             request.query<SportRow>(`
@@ -102,24 +83,12 @@ export const sqlLookupAccess: ILookupAccess = {
               ORDER BY DistanceUnitId
             `)
           ),
-          executeQuery((request) =>
-            request.query<PerceivedHealthRatingRow>(`
-              SELECT PerceivedHealthRatingId, Code, Name, Rating
-              FROM training.PerceivedHealthRating
-              /* Worst to best. The ids agree with the scale today, but the
-                 order belongs to Rating, not to the generated key. */
-              ORDER BY Rating
-            `)
-          ),
         ]);
 
       return {
         sports: sports.recordset.map(toSport),
         workoutTypes: workoutTypes.recordset.map(toWorkoutType),
         distanceUnits: distanceUnits.recordset.map(toDistanceUnit),
-        perceivedHealthRatings: perceivedHealthRatings.recordset.map(
-          toPerceivedHealthRating
-        ),
       };
     } catch (err) {
       console.error("[DAL] lookups.getAll failed", { err });

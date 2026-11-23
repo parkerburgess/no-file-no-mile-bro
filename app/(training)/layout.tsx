@@ -1,6 +1,6 @@
 import { requireAthlete } from "@/lib/auth";
 import { dal } from "@/lib/dal";
-import { getAthleteUnits, getLookups } from "@/lib/page-data";
+import { getAthleteUnits } from "@/lib/page-data";
 import {
   toWellnessCardDto,
   toWellnessFormDto,
@@ -21,15 +21,8 @@ type Props = {
  */
 export default async function TrainingLayout({ children }: Props) {
   const athlete = await requireAthlete();
-  const lookups = await getLookups();
   const units = await getAthleteUnits();
   const wellness = await dal.wellness.listDailyWellness(athlete.athleteId);
-
-  // The Select in the wellness form takes plain option strings, so the
-  // lookup is flattened to its names here rather than in the client bundle.
-  const healthRatingNames = lookups.perceivedHealthRatings.map(
-    (rating) => rating.name
-  );
 
   // #region Tailwind utility consts
   // One track per child: the pull row, then the columns. The columns' track
@@ -40,7 +33,7 @@ export default async function TrainingLayout({ children }: Props) {
   // rail, and the middle column is what should get the width back when it
   // does.
   const columnsCls =
-    "grid grid-cols-[240px_minmax(0,1fr)_auto] gap-6 min-h-0";
+    "grid grid-cols-[300px_minmax(0,1fr)_auto] gap-6 min-h-0";
   const viewCls = "grid content-start gap-3 min-h-0 overflow-y-auto pr-1";
   // #endregion
 
@@ -51,7 +44,6 @@ export default async function TrainingLayout({ children }: Props) {
         <WellnessPanel
           days={wellness.map((day) => toWellnessCardDto(day, units))}
           formDays={wellness.map(toWellnessFormDto)}
-          healthRatingNames={healthRatingNames}
         />
 
         <section className={viewCls}>{children}</section>

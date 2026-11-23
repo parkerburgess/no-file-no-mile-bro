@@ -1,23 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Button,
-  Input,
-  Modal,
-  Select,
-  Textarea,
-} from "@parkerburgess/wandering-parker-ui";
+import { Button, Input, Modal } from "@parkerburgess/wandering-parker-ui";
 import type { WellnessFormDto } from "@/dto";
 
 type Props = {
   days: WellnessFormDto[];
-  healthRatingNames: string[];
 };
 
 type RecordFieldsProps = {
   wellness: WellnessFormDto;
-  healthRatingNames: string[];
 };
 
 /**
@@ -25,16 +17,12 @@ type RecordFieldsProps = {
  * nothing reads these back yet, and defaultValue is what lets them be typed
  * into without a change handler that would have nowhere to send the value.
  */
-function WellnessRecordFields({
-  wellness,
-  healthRatingNames,
-}: RecordFieldsProps) {
+function WellnessRecordFields({ wellness }: RecordFieldsProps) {
   const fieldIdPrefix = `wellness-${wellness.id}`;
 
   // #region Tailwind utility consts
   const recordCls = "grid gap-3 rounded-lg border border-neutral-400 p-4";
   const fieldGridCls = "grid grid-cols-2 gap-3";
-  const fullWidthFieldCls = "col-span-2";
   // #endregion
 
   return (
@@ -47,10 +35,22 @@ function WellnessRecordFields({
           defaultValue={wellness.date}
         />
         <Input
+          id={`${fieldIdPrefix}-steps`}
+          label="Steps"
+          type="number"
+          defaultValue={wellness.steps}
+        />
+        <Input
           id={`${fieldIdPrefix}-resting-hr`}
           label="Resting HR"
           type="number"
           defaultValue={wellness.restingHeartRate}
+        />
+        <Input
+          id={`${fieldIdPrefix}-max-hr`}
+          label="Max HR"
+          type="number"
+          defaultValue={wellness.maxHeartRate}
         />
         <Input
           id={`${fieldIdPrefix}-sleep`}
@@ -71,20 +71,6 @@ function WellnessRecordFields({
           step="0.01"
           defaultValue={wellness.bodyWeightKilograms}
         />
-        <Select
-          id={`${fieldIdPrefix}-health`}
-          label="Health"
-          options={healthRatingNames}
-          defaultValue={wellness.health}
-        />
-        <Input
-          id={`${fieldIdPrefix}-notes`}
-          label="Notes"
-          type="text"
-          className={fullWidthFieldCls}
-          defaultValue={wellness.notes}
-          placeholder="No notes"
-        />
       </div>
     </div>
   );
@@ -98,10 +84,7 @@ function WellnessRecordFields({
  * Display only. Both action buttons are disabled because nothing writes
  * training.DailyWellness yet.
  */
-export default function AddEditWellnessModal({
-  days,
-  healthRatingNames,
-}: Props) {
+export default function AddEditWellnessModal({ days }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const mostRecentFirst = [...days].sort((left, right) =>
@@ -128,7 +111,6 @@ export default function AddEditWellnessModal({
   const sectionHeadingCls =
     "text-xs font-semibold uppercase tracking-wide text-neutral-500";
   const fieldGridCls = "grid grid-cols-2 gap-3";
-  const fullWidthFieldCls = "col-span-2";
   // Capped so the new-entry row above it cannot be scrolled out of reach once
   // the history grows.
   const recordListCls = "grid gap-3 max-h-80 overflow-y-auto pr-1";
@@ -170,8 +152,20 @@ export default function AddEditWellnessModal({
               <div className={fieldGridCls}>
                 <Input id="new-wellness-date" label="Date" type="date" />
                 <Input
+                  id="new-wellness-steps"
+                  label="Steps"
+                  type="number"
+                  placeholder="steps"
+                />
+                <Input
                   id="new-wellness-resting-hr"
                   label="Resting HR"
+                  type="number"
+                  placeholder="bpm"
+                />
+                <Input
+                  id="new-wellness-max-hr"
+                  label="Max HR"
                   type="number"
                   placeholder="bpm"
                 />
@@ -194,18 +188,6 @@ export default function AddEditWellnessModal({
                   step="0.01"
                   placeholder="kg"
                 />
-                <Select
-                  id="new-wellness-health"
-                  label="Health"
-                  options={healthRatingNames}
-                />
-                <Textarea
-                  id="new-wellness-notes"
-                  label="Notes"
-                  rows={2}
-                  className={fullWidthFieldCls}
-                  placeholder="How the day went"
-                />
               </div>
 
               <div className={actionsCls}>
@@ -223,11 +205,7 @@ export default function AddEditWellnessModal({
               ) : (
                 <div className={recordListCls}>
                   {mostRecentFirst.map((day) => (
-                    <WellnessRecordFields
-                      key={day.id}
-                      wellness={day}
-                      healthRatingNames={healthRatingNames}
-                    />
+                    <WellnessRecordFields key={day.id} wellness={day} />
                   ))}
                 </div>
               )}

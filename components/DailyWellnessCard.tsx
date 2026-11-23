@@ -6,7 +6,17 @@ type Props = {
   wellness: WellnessCardDto;
 };
 
-/** Every column on the row is nullable, so every row can read as absent. */
+/**
+ * One card row: a label and up to two values. `second` is null for a
+ * single-value row (weight), whose value then spans both value columns.
+ */
+type WellnessRow = {
+  label: string;
+  first: string;
+  second: string | null;
+};
+
+/** Every column on the row is nullable, so every value can read as absent. */
 const EMPTY_VALUE = "—";
 
 function valueOrDash(value: string | null): string {
@@ -17,45 +27,52 @@ function valueOrDash(value: string | null): string {
 }
 
 export default function DailyWellnessCard({ wellness }: Props) {
-  const rows = [
+  const rows: WellnessRow[] = [
     {
-      label: "Resting HR",
-      value: valueOrDash(wellness.restingHeartRate),
+      label: "Steps / goal",
+      first: valueOrDash(wellness.steps),
+      second: valueOrDash(wellness.stepGoal),
     },
     {
-      label: "Sleep",
-      value: valueOrDash(wellness.sleep),
+      label: "HR rest / max",
+      first: valueOrDash(wellness.restingHeartRate),
+      second: valueOrDash(wellness.maxHeartRate),
     },
     {
-      label: "Sleep score",
-      value: valueOrDash(wellness.sleepScore),
+      label: "Sleep score / dur",
+      first: valueOrDash(wellness.sleepScore),
+      second: valueOrDash(wellness.sleep),
     },
     {
       label: "Weight",
-      value: valueOrDash(wellness.weight),
-    },
-    {
-      // PerceivedHealthRating carries both a name and a 1-5 rating; the name
-      // is what it exists for, so the number stays out of the UI.
-      label: "Health",
-      value: valueOrDash(wellness.health),
+      first: valueOrDash(wellness.weight),
+      second: null,
     },
   ];
 
   // #region Tailwind utility consts
   const contentCls = "grid gap-4";
   const dayCls = "text-sm font-semibold text-neutral-900";
-  // The cells stay stretched rather than justify-self'd, so each row's border
-  // runs unbroken from the label across to the value. The shared leading keeps
-  // the two halves the same height, which is what makes the line continuous.
-  const listCls = "grid grid-cols-[1fr_auto]";
+  // Label, first value, second value. The cells stay stretched rather than
+  // justify-self'd, so each row's border runs unbroken across all three; the
+  // gap between the value columns is padding for the same reason. The shared
+  // leading keeps the cells the same height, which keeps the line continuous.
+  const listCls = "grid grid-cols-[1fr_auto_auto]";
   const labelCls =
     "border-b border-neutral-400 py-1.5 pr-4 text-left text-xs leading-5 " +
     "text-neutral-500";
-  const valueCls =
+  const valueBaseCls =
     "border-b border-neutral-400 py-1.5 text-right text-sm leading-5 " +
     "font-medium text-neutral-900 tabular-nums";
+  const secondValueCls = `${valueBaseCls} pl-4`;
   // #endregion
+
+  function firstValueCls(row: WellnessRow): string {
+    if (row.second === null) {
+      return `${valueBaseCls} col-span-2`;
+    }
+    return valueBaseCls;
+  }
 
   return (
     <Card>
@@ -66,7 +83,10 @@ export default function DailyWellnessCard({ wellness }: Props) {
           {rows.map((row) => (
             <Fragment key={row.label}>
               <dt className={labelCls}>{row.label}</dt>
-              <dd className={valueCls}>{row.value}</dd>
+              <dd className={firstValueCls(row)}>{row.first}</dd>
+              {row.second !== null && (
+                <dd className={secondValueCls}>{row.second}</dd>
+              )}
             </Fragment>
           ))}
         </dl>

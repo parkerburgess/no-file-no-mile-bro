@@ -2,25 +2,28 @@ export interface WellnessCardDto {
   id: string;
   dateKey: string;  // sortable, "yyyy-MM-dd"
   dayLabel: string; // "Tue, Sep 23"
+  steps: string | null;    // "8,412"
+  stepGoal: string | null; // "10,000", set by Garmin
   restingHeartRate: string | null;
-  sleep: string | null;  // "7h 30m"
+  maxHeartRate: string | null;
   sleepScore: string | null;
+  sleep: string | null;  // "7:30" (h:mm)
   weight: string | null; // "172.4 lb" or "78.2 kg", per the athlete's unit
-  health: string | null;
 }
 
 /**
  * Prefill values for one recorded day in the edit form. Every field is the
  * string an input expects, with "" for an empty value. Sleep is in minutes
- * and weight in kilograms, matching the form's labels.
+ * and weight in kilograms, matching the form's labels. Step goal is absent:
+ * Garmin sets it, so the form has no field for it.
  */
 export interface WellnessFormDto {
   id: string;
   date: string; // "yyyy-MM-dd", also the sort key
+  steps: string;
   restingHeartRate: string;
+  maxHeartRate: string;
   sleepMinutes: string;
   sleepScore: string;
   bodyWeightKilograms: string;
-  health: string;
-  notes: string;
 }

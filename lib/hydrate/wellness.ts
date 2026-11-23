@@ -1,7 +1,12 @@
 import type { DailyWellness } from "@/lib/dal";
 import type { WellnessCardDto, WellnessFormDto } from "@/dto";
-import { formatDayLabel, formatWeight } from "@/lib/format";
-import { formatDurationOrNull, stringOrNull } from "@/lib/hydrate/units";
+import {
+  formatCount,
+  formatDayLabel,
+  formatHoursMinutes,
+  formatWeight,
+} from "@/lib/format";
+import { stringOrNull } from "@/lib/hydrate/units";
 import type { UnitDisplay } from "@/lib/hydrate/units";
 
 const SECONDS_PER_MINUTE = 60;
@@ -14,6 +19,20 @@ function weightOrNull(
     return null;
   }
   return formatWeight(kilograms, units.useImperial);
+}
+
+function hoursMinutesOrNull(seconds: number | null): string | null {
+  if (seconds === null) {
+    return null;
+  }
+  return formatHoursMinutes(seconds);
+}
+
+function countOrNull(count: number | null): string | null {
+  if (count === null) {
+    return null;
+  }
+  return formatCount(count);
 }
 
 function toFieldValue(value: number | string | null): string {
@@ -42,11 +61,13 @@ export function toWellnessCardDto(
     id: String(wellness.id),
     dateKey: wellness.dailyWellnessDate,
     dayLabel: formatDayLabel(wellness.dailyWellnessDate),
+    steps: countOrNull(wellness.steps),
+    stepGoal: countOrNull(wellness.stepGoal),
     restingHeartRate: stringOrNull(wellness.restingHeartRate),
-    sleep: formatDurationOrNull(wellness.sleepDurationSeconds),
+    maxHeartRate: stringOrNull(wellness.maxHeartRate),
     sleepScore: stringOrNull(wellness.sleepScore),
+    sleep: hoursMinutesOrNull(wellness.sleepDurationSeconds),
     weight: weightOrNull(wellness.bodyWeightKilograms, units),
-    health: wellness.perceivedHealthName,
   };
 }
 
@@ -54,11 +75,11 @@ export function toWellnessFormDto(wellness: DailyWellness): WellnessFormDto {
   return {
     id: String(wellness.id),
     date: wellness.dailyWellnessDate,
+    steps: toFieldValue(wellness.steps),
     restingHeartRate: toFieldValue(wellness.restingHeartRate),
+    maxHeartRate: toFieldValue(wellness.maxHeartRate),
     sleepMinutes: toMinutesValue(wellness.sleepDurationSeconds),
     sleepScore: toFieldValue(wellness.sleepScore),
     bodyWeightKilograms: toFieldValue(wellness.bodyWeightKilograms),
-    health: toFieldValue(wellness.perceivedHealthName),
-    notes: toFieldValue(wellness.notes),
   };
 }

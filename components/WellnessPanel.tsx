@@ -6,14 +6,9 @@ import type { WellnessCardDto, WellnessFormDto } from "@/dto";
 type Props = {
   days: WellnessCardDto[];
   formDays: WellnessFormDto[];
-  healthRatingNames: string[];
 };
 
-export default function WellnessPanel({
-  days,
-  formDays,
-  healthRatingNames,
-}: Props) {
+export default function WellnessPanel({ days, formDays }: Props) {
   const mostRecentFirst = [...days].sort((left, right) =>
     right.dateKey.localeCompare(left.dateKey)
   );
@@ -29,10 +24,7 @@ export default function WellnessPanel({
   if (mostRecentFirst.length === 0) {
     return (
       <Panel title="Daily">
-        <AddEditWellnessModal
-          days={formDays}
-          healthRatingNames={healthRatingNames}
-        />
+        <AddEditWellnessModal days={formDays} />
         <p className={emptyCls}>No wellness entries recorded yet.</p>
       </Panel>
     );
@@ -40,10 +32,7 @@ export default function WellnessPanel({
 
   return (
     <Panel title="Daily">
-      <AddEditWellnessModal
-        days={formDays}
-        healthRatingNames={healthRatingNames}
-      />
+      <AddEditWellnessModal days={formDays} />
 
       {mostRecentFirst.map((day) => (
         <DailyWellnessCard key={day.id} wellness={day} />

@@ -78,6 +78,19 @@ export function formatWeight(kilograms: number, useImperial: boolean): string {
   return `${kilograms.toFixed(1)} kg`;
 }
 
+/** Hours and zero-padded minutes, e.g. 27900 -> "7:45". */
+export function formatHoursMinutes(totalSeconds: number): string {
+  const totalMinutes = Math.round(totalSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}:${String(minutes).padStart(2, "0")}`;
+}
+
+/** Thousands-separated, e.g. 11482 -> "11,482". */
+export function formatCount(count: number): string {
+  return count.toLocaleString("en-US");
+}
+
 export function distanceUnitAbbreviation(code: string): string {
   return code === "MILE" ? "mi" : "km";
 }

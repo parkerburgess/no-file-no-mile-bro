@@ -1,11 +1,10 @@
 /**
- * training.DailyWellness is one row per athlete per training day — the
- * overnight and subjective numbers that belong to the day rather than to any
- * single activity. Nothing promotes rows here from a staging table: unlike
- * training.Activity, every column is entered by the athlete.
+ * training.DailyWellness is one row per athlete per training day — the daily
+ * metrics the Garmin Personal API reports, rather than anything tied to a
+ * single activity.
  *
- * `DailyWellnessDate` is the day. `RecordedOn` is being dropped from the
- * database in favour of it, so nothing here reads that column.
+ * `DailyWellnessDate` is the day. Weight is stored in kilograms and sleep in
+ * seconds; both are converted for display at the UI edge.
  */
 
 /**
@@ -13,18 +12,19 @@
  *
  * AthleteId, CreatedAt and UpdatedAt are deliberately absent — the caller
  * already knows the athlete it asked for, and the audit columns have no
- * reader. `perceivedHealthName` is training.PerceivedHealthRating.Name joined
- * through, rather than the raw id: the lookup exists to give the rating words.
+ * reader. `stepGoal` is the goal Garmin sets for the day, not one entered
+ * here.
  */
 export type DailyWellness = {
   id: number;
   dailyWellnessDate: string;
+  steps: number | null;
+  stepGoal: number | null;
   restingHeartRate: number | null;
+  maxHeartRate: number | null;
   sleepDurationSeconds: number | null;
   sleepScore: number | null;
   bodyWeightKilograms: number | null;
-  perceivedHealthName: string | null;
-  notes: string | null;
 };
 
 export interface IWellnessAccess {
