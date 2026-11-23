@@ -4,8 +4,7 @@
 
 Training tracker built around HR Zones: aerobic-base running
 with cycling cross-training, held under a heart rate ceiling of roughly
-125. Plans are generated from templates into dated workouts; actual work
-arrives from Strava and is reconciled against the plan.
+125. Plans are generated from templates into dated workouts.
 
 Goal races: 5K on 2026-11-14 (B, tune-up) and 25K on 2027-01-23 (A, goal).
 

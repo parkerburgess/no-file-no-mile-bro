@@ -10,8 +10,6 @@ export interface CompletedActivityRowDto {
   sortKey: string;  // ISO timestamp the activity started
   dayLabel: string; // "Tue, Sep 23"
   sportName: string;
-  /** Null when the activity never went over the ceiling or has no zone data. */
-  overCeilingDuration: string | null;
   duration: string;
   distance: string | null;
   /** "Pace" or "Speed", by sport — the label for `pace`. */

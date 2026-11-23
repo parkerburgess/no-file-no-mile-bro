@@ -91,9 +91,6 @@ export function toCompletedActivityRowDto(
     sortKey: activity.startedAt,
     dayLabel: formatDayLabel(activity.startedAt),
     sportName: activity.sportName,
-    overCeilingDuration: overCeilingDuration(
-      activity.secondsAboveHeartRateCeiling
-    ),
     duration: formatDuration(activity.durationSeconds),
     distance: formatDistanceOrNull(activity.distanceMeters, units),
     paceLabel: paceLabel(activity.sportCode),

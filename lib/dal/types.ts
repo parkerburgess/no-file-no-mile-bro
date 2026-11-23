@@ -1,7 +1,6 @@
 import type { IActivityAccess } from "@/lib/dal/activity/types";
 import type { IAthleteAccess } from "@/lib/dal/athlete/types";
 import type { ILookupAccess } from "@/lib/dal/lookups/types";
-import type { IStravaAccess } from "@/lib/dal/strava/types";
 import type { IWellnessAccess } from "@/lib/dal/wellness/types";
 
 /**
@@ -17,6 +16,5 @@ export interface IDataAccess {
   activity: IActivityAccess;
   athlete: IAthleteAccess;
   lookups: ILookupAccess;
-  strava: IStravaAccess;
   wellness: IWellnessAccess;
 }

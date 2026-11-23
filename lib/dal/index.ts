@@ -17,19 +17,10 @@ function selectDataAccess(): IDataAccess {
 
 export const dal: IDataAccess = selectDataAccess();
 
-export type {
-  CompletedActivity,
-  SkippedStravaActivity,
-  StravaMigrationResult,
-} from "@/lib/dal/activity/types";
+export type { CompletedActivity } from "@/lib/dal/activity/types";
 
 export type { CompleteProfileInput } from "@/lib/dal/athlete/types";
 
 export type { DistanceUnitLookupItem } from "@/lib/dal/lookups/types";
-
-export type {
-  StravaRawActivityInput,
-  StravaRawZoneInput,
-} from "@/lib/dal/strava/types";
 
 export type { DailyWellness } from "@/lib/dal/wellness/types";
