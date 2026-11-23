@@ -31,6 +31,7 @@ GO
    Looked up by column rather than by name: the constraint predates the naming
    standard, so its name is not certain. */
 DECLARE @foreignKeyName SYSNAME;
+DECLARE @dropForeignKeySql NVARCHAR(MAX);
 
 SELECT @foreignKeyName = FK.[name]
 FROM sys.foreign_keys FK
@@ -42,15 +43,22 @@ JOIN sys.columns C
 WHERE FK.parent_object_id = OBJECT_ID(N'training.DailyWellness')
   AND C.[name] = N'PerceivedHealthRatingId';
 
+/* Built into a variable first: EXEC (...) accepts only literals and
+   variables, not a function call such as QUOTENAME. */
 IF @foreignKeyName IS NOT NULL
-    EXEC (N'ALTER TABLE training.DailyWellness DROP CONSTRAINT '
-          + QUOTENAME(@foreignKeyName) + N';');
+BEGIN
+    SET @dropForeignKeySql =
+        N'ALTER TABLE training.DailyWellness DROP CONSTRAINT '
+        + QUOTENAME(@foreignKeyName) + N';';
+    EXEC sys.sp_executesql @dropForeignKeySql;
+END
 GO
 
 
 /* ---- Drop any index on PerceivedHealthRatingId ----------------------------
    A column cannot be dropped while an index references it. */
 DECLARE @indexName SYSNAME;
+DECLARE @dropIndexSql NVARCHAR(MAX);
 
 SELECT TOP (1) @indexName = I.[name]
 FROM sys.indexes I
@@ -65,8 +73,12 @@ WHERE I.[object_id] = OBJECT_ID(N'training.DailyWellness')
   AND I.is_primary_key = 0;
 
 IF @indexName IS NOT NULL
-    EXEC (N'DROP INDEX ' + QUOTENAME(@indexName)
-          + N' ON training.DailyWellness;');
+BEGIN
+    SET @dropIndexSql =
+        N'DROP INDEX ' + QUOTENAME(@indexName)
+        + N' ON training.DailyWellness;';
+    EXEC sys.sp_executesql @dropIndexSql;
+END
 GO
 
 
