@@ -19,6 +19,8 @@
 export type CompletedActivity = {
   kind: "activity";
   id: number;
+  /** training.Sport.Code, e.g. "RUN" or "CYCLE". */
+  sportCode: string;
   sportName: string;
   name: string | null;
   startedAt: string;

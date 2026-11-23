@@ -5,10 +5,12 @@ import type {
   PlannedRaceDto,
   PlannedWorkoutRowDto,
 } from "@/dto";
+import { SPEED_SPORT_CODES } from "@/lib/config";
 import {
   formatDayLabel,
   formatDuration,
-  formatTimeOfDay,
+  formatPace,
+  formatSpeed,
 } from "@/lib/format";
 import {
   formatDistanceOrNull,
@@ -22,6 +24,44 @@ function overCeilingDuration(seconds: number | null): string | null {
     return null;
   }
   return formatDuration(seconds);
+}
+
+function isSpeedSport(sportCode: string): boolean {
+  return SPEED_SPORT_CODES.includes(sportCode);
+}
+
+function paceLabel(sportCode: string): string {
+  if (isSpeedSport(sportCode)) {
+    return "Speed";
+  }
+  return "Pace";
+}
+
+/** Pace for most sports, speed for the ones in SPEED_SPORT_CODES. */
+function paceOrNull(
+  activity: CompletedActivity,
+  units: UnitDisplay
+): string | null {
+  if (activity.distanceMeters === null || activity.distanceMeters <= 0) {
+    return null;
+  }
+  if (activity.durationSeconds <= 0) {
+    return null;
+  }
+
+  const distanceUnits = activity.distanceMeters / units.metersPerUnit;
+  if (isSpeedSport(activity.sportCode)) {
+    return formatSpeed(
+      activity.durationSeconds,
+      distanceUnits,
+      units.speedAbbreviation
+    );
+  }
+  return formatPace(
+    activity.durationSeconds,
+    distanceUnits,
+    units.distanceAbbreviation
+  );
 }
 
 function sportLabel(workout: PlannedWorkout): string {
@@ -50,15 +90,16 @@ export function toCompletedActivityRowDto(
     id: String(activity.id),
     sortKey: activity.startedAt,
     dayLabel: formatDayLabel(activity.startedAt),
-    timeLabel: formatTimeOfDay(activity.startedAt),
     sportName: activity.sportName,
-    name: activity.name,
     overCeilingDuration: overCeilingDuration(
       activity.secondsAboveHeartRateCeiling
     ),
     duration: formatDuration(activity.durationSeconds),
     distance: formatDistanceOrNull(activity.distanceMeters, units),
+    paceLabel: paceLabel(activity.sportCode),
+    pace: paceOrNull(activity, units),
     averageHeartRate: stringOrNull(activity.averageHeartRate),
+    maxHeartRate: stringOrNull(activity.maxHeartRate),
   };
 }
 

@@ -7,16 +7,19 @@
 export interface CompletedActivityRowDto {
   kind: "activity";
   id: string;
-  sortKey: string;   // ISO timestamp the activity started
-  dayLabel: string;  // "Tue, Sep 23"
-  timeLabel: string; // "6:15 AM"
+  sortKey: string;  // ISO timestamp the activity started
+  dayLabel: string; // "Tue, Sep 23"
   sportName: string;
-  name: string | null;
   /** Null when the activity never went over the ceiling or has no zone data. */
   overCeilingDuration: string | null;
   duration: string;
   distance: string | null;
+  /** "Pace" or "Speed", by sport — the label for `pace`. */
+  paceLabel: string;
+  /** "9:45 /mi" or "16.2 mph"; null with no distance to divide by. */
+  pace: string | null;
   averageHeartRate: string | null;
+  maxHeartRate: string | null;
 }
 
 export interface PlannedRaceDto {

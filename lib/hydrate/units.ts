@@ -3,6 +3,7 @@ import {
   distanceUnitAbbreviation,
   formatDistance,
   formatDuration,
+  speedUnitAbbreviation,
 } from "@/lib/format";
 
 // Shared helpers for the hydrators. Hydrators only map, cast and format.
@@ -15,6 +16,7 @@ import {
 export type UnitDisplay = {
   metersPerUnit: number;
   distanceAbbreviation: string;
+  speedAbbreviation: string;
   useImperial: boolean;
 };
 
@@ -22,6 +24,7 @@ export function toUnitDisplay(unit: DistanceUnitLookupItem): UnitDisplay {
   return {
     metersPerUnit: unit.metersPerUnit,
     distanceAbbreviation: distanceUnitAbbreviation(unit.code),
+    speedAbbreviation: speedUnitAbbreviation(unit.code),
     useImperial: unit.code === "MILE",
   };
 }

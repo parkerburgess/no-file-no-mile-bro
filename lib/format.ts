@@ -41,13 +41,6 @@ export function formatDayLabel(isoDate: string): string {
   return `${weekday}, ${MONTH_NAMES[month - 1]} ${day}`;
 }
 
-export function formatTimeOfDay(isoDateTime: string): string {
-  const [rawHour, minute] = isoDateTime.slice(11, 16).split(":").map(Number);
-  const suffix = rawHour < 12 ? "AM" : "PM";
-  const hour = rawHour % 12 === 0 ? 12 : rawHour % 12;
-  return `${hour}:${String(minute).padStart(2, "0")} ${suffix}`;
-}
-
 export function formatDuration(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.round((totalSeconds % 3600) / 60);
@@ -86,6 +79,28 @@ export function formatHoursMinutes(totalSeconds: number): string {
   return `${hours}:${String(minutes).padStart(2, "0")}`;
 }
 
+/** Minutes and seconds per distance unit, e.g. "9:45 /mi". */
+export function formatPace(
+  durationSeconds: number,
+  distanceUnits: number,
+  unitAbbreviation: string
+): string {
+  const secondsPerUnit = Math.round(durationSeconds / distanceUnits);
+  const minutes = Math.floor(secondsPerUnit / 60);
+  const seconds = secondsPerUnit % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")} /${unitAbbreviation}`;
+}
+
+/** Distance units per hour, e.g. "16.2 mph". */
+export function formatSpeed(
+  durationSeconds: number,
+  distanceUnits: number,
+  speedAbbreviation: string
+): string {
+  const unitsPerHour = distanceUnits / (durationSeconds / 3600);
+  return `${unitsPerHour.toFixed(1)} ${speedAbbreviation}`;
+}
+
 /** Thousands-separated, e.g. 11482 -> "11,482". */
 export function formatCount(count: number): string {
   return count.toLocaleString("en-US");
@@ -93,4 +108,8 @@ export function formatCount(count: number): string {
 
 export function distanceUnitAbbreviation(code: string): string {
   return code === "MILE" ? "mi" : "km";
+}
+
+export function speedUnitAbbreviation(code: string): string {
+  return code === "MILE" ? "mph" : "km/h";
 }

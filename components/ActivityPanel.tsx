@@ -1,4 +1,4 @@
-import ActivityRow from "@/components/ActivityRow";
+import ActivityCard from "@/components/ActivityCard";
 import type { ActivityTimelineItemDto } from "@/dto";
 
 type Props = {
@@ -37,7 +37,7 @@ export default function ActivityPanel({ items }: Props) {
   return (
     <>
       {mostRecentFirst.map((item) => (
-        <ActivityRow key={`${item.kind}-${item.id}`} item={item} />
+        <ActivityCard key={`${item.kind}-${item.id}`} item={item} />
       ))}
     </>
   );

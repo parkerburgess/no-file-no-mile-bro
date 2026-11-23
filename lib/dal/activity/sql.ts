@@ -41,6 +41,7 @@ type SportMapEntry = {
 
 type ActivityRow = {
   ActivityId: number;
+  SportCode: string;
   SportName: string;
   Notes: string | null;
   StartedAt: Date;
@@ -125,6 +126,7 @@ function toCompletedActivity(row: ActivityRow): CompletedActivity {
   return {
     kind: "activity",
     id: row.ActivityId,
+    sportCode: row.SportCode,
     sportName: row.SportName,
     name: row.Notes,
     startedAt: toTimestamp(row.StartedAt),
@@ -248,6 +250,7 @@ export const sqlActivityAccess: IActivityAccess = {
       const result = await executeQuery((request) =>
         request.input("athleteId", sql.Int, athleteId).query<ActivityRow>(`
           SELECT A.ActivityId,
+                 S.Code AS SportCode,
                  S.Name AS SportName,
                  A.Notes,
                  A.StartedAt,
