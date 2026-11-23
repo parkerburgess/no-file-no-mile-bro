@@ -27,3 +27,14 @@ export interface WellnessFormDto {
   sleepScore: string;
   bodyWeightKilograms: string;
 }
+
+/**
+ * Everything the wellness panel's body renders, resolved after the Garmin
+ * pull on layout load. `pullError` is set when the pull failed; the days
+ * already stored are still returned and shown under it.
+ */
+export interface WellnessPanelDataDto {
+  days: WellnessCardDto[];
+  formDays: WellnessFormDto[];
+  pullError: string | null;
+}

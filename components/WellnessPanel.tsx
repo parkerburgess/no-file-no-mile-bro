@@ -1,42 +1,25 @@
+import { Suspense } from "react";
 import { Panel } from "@parkerburgess/wandering-parker-ui";
-import AddEditWellnessModal from "@/components/AddEditWellnessModal";
-import DailyWellnessCard from "@/components/DailyWellnessCard";
-import type { WellnessCardDto, WellnessFormDto } from "@/dto";
+import PullingSpinner from "@/components/PullingSpinner";
+import WellnessPanelBody from "@/components/WellnessPanelBody";
+import type { WellnessPanelDataDto } from "@/dto";
 
 type Props = {
-  days: WellnessCardDto[];
-  formDays: WellnessFormDto[];
+  data: Promise<WellnessPanelDataDto>;
 };
 
-export default function WellnessPanel({ days, formDays }: Props) {
-  const mostRecentFirst = [...days].sort((left, right) =>
-    right.dateKey.localeCompare(left.dateKey)
-  );
-
-  // #region Tailwind utility consts
-  const emptyCls =
-    "rounded-lg border border-dashed border-neutral-300 p-4 text-sm " +
-    "text-neutral-500";
-  // #endregion
-
-  // The button is in both branches on purpose: with no rows yet it is the only
-  // way to add the first one.
-  if (mostRecentFirst.length === 0) {
-    return (
-      <Panel title="Daily">
-        <AddEditWellnessModal days={formDays} />
-        <p className={emptyCls}>No wellness entries recorded yet.</p>
-      </Panel>
-    );
-  }
-
+/**
+ * The title renders at once; the body waits behind a spinner while the
+ * layout pulls from Garmin, then streams in.
+ */
+export default function WellnessPanel({ data }: Props) {
   return (
     <Panel title="Daily">
-      <AddEditWellnessModal days={formDays} />
-
-      {mostRecentFirst.map((day) => (
-        <DailyWellnessCard key={day.id} wellness={day} />
-      ))}
+      <Suspense
+        fallback={<PullingSpinner label="Pulling wellness from Garmin..." />}
+      >
+        <WellnessPanelBody data={data} />
+      </Suspense>
     </Panel>
   );
 }

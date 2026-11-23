@@ -27,11 +27,23 @@ export interface ActivityCardDto {
  */
 export interface ActivityFormDto {
   id: string;
-  startedAt: string; // "yyyy-MM-ddTHH:mm" (UTC), also the sort key
+  startedAt: string; // "yyyy-MM-ddTHH:mm" (local time), also the sort key
   sportName: string;
   durationMinutes: string;
   distanceMeters: string;
   averageHeartRate: string;
   maxHeartRate: string;
   notes: string;
+}
+
+/**
+ * Everything the activity panel's body renders, resolved after the Garmin
+ * pull on page load. `pullError` is set when the pull failed; the activities
+ * already stored are still returned and shown under it.
+ */
+export interface ActivityPanelDataDto {
+  activities: ActivityCardDto[];
+  formActivities: ActivityFormDto[];
+  sportOptions: string[];
+  pullError: string | null;
 }

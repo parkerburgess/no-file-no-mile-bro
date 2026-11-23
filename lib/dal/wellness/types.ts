@@ -27,12 +27,41 @@ export type DailyWellness = {
   bodyWeightKilograms: number | null;
 };
 
+/**
+ * One day of Garmin wellness metrics, ready to upsert. `date` is the
+ * training day, "yyyy-MM-dd". Weight is kilograms and sleep is seconds,
+ * matching the columns.
+ */
+export type WellnessDayInput = {
+  athleteId: number;
+  date: string;
+  steps: number | null;
+  stepGoal: number | null;
+  restingHeartRate: number | null;
+  maxHeartRate: number | null;
+  sleepDurationSeconds: number | null;
+  sleepScore: number | null;
+  bodyWeightKilograms: number | null;
+};
+
 export interface IWellnessAccess {
   /**
-   * Every wellness day for one athlete, in no particular order (the component
-   * sorts). Unbounded for the same reason listActivities is: the panel shows
-   * all of them, and a window can be added when the volume justifies picking
-   * one.
+   * The athlete's newest `dayCount` stored days, in no particular order (the
+   * component sorts). Windowed because the Garmin pull stores a year of days,
+   * and rendering all of them made the page slow.
    */
-  listDailyWellness(athleteId: number): Promise<DailyWellness[]>;
+  listDailyWellness(
+    athleteId: number,
+    dayCount: number
+  ): Promise<DailyWellness[]>;
+
+  /** The newest stored day ("yyyy-MM-dd"), or null when there is none. */
+  latestDate(athleteId: number): Promise<string | null>;
+
+  /**
+   * Inserts the day, or overwrites its metrics when the athlete already has a
+   * row for it — recent days are re-pulled while Garmin is still filling
+   * them in.
+   */
+  upsertDay(input: WellnessDayInput): Promise<void>;
 }
