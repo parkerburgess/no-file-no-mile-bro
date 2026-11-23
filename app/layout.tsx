@@ -2,14 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header, ThemeProvider } from "@parkerburgess/wandering-parker-ui";
-import type {
-  SiteNavItem,
-  ContactConfig,
-} from "@parkerburgess/wandering-parker-ui";
+import type { ContactConfig } from "@parkerburgess/wandering-parker-ui";
 import { requireAthlete } from "@/lib/auth";
+import { TRAINING_NAV_ITEMS } from "@/lib/nav";
 import { getUserEmail } from "@parkerburgess/wandering-parker-server";
-
-const navItems: SiteNavItem[] = [];
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,7 +53,7 @@ export default async function RootLayout({
           <Header
             userName={athlete.displayName}
             brandText="No File No Mile"
-            navItems={navItems}
+            navItems={TRAINING_NAV_ITEMS}
             contact={contact}
           />
           {children}

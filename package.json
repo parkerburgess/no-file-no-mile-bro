@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev -p 3004\" \"wait-on http://localhost:3004 && start chrome --incognito http://localhost:3004\"",
+    "dev": "concurrently \"next dev -p 3004\" \"wait-on tcp:localhost:3004 && start chrome --incognito http://localhost:3004\"",
     "dev:server-only": "next dev -p 3004",
     "build": "next build",
     "start": "next start",
