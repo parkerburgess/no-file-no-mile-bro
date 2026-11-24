@@ -3,6 +3,7 @@ import { dal } from "@/lib/dal";
 import { getAthleteUnits } from "@/lib/page-data";
 import { WELLNESS_PANEL_DAYS } from "@/lib/config";
 import { pullGarminWellness } from "@/lib/garmin/wellness";
+import { shouldPullFromGarmin } from "@/lib/garmin/recency";
 import {
   toWellnessCardDto,
   toWellnessFormDto,
@@ -31,15 +32,28 @@ async function pullWellnessOrError(
   }
 }
 
+/** Null when no pull was due, as well as when the pull succeeded. */
+async function pullWellnessIfDue(
+  athleteId: number,
+  timeZoneId: string
+): Promise<string | null> {
+  const isDue = await shouldPullFromGarmin(athleteId, timeZoneId);
+  if (!isDue) {
+    return null;
+  }
+  return pullWellnessOrError(athleteId, timeZoneId);
+}
+
 /**
- * Pulls recent Garmin wellness, then reads and hydrates every stored day.
- * The read waits for the pull so the cards include what it just wrote.
+ * Pulls recent Garmin wellness when today isn't stored yet, then reads and
+ * hydrates every stored day. The read waits for the pull so the cards
+ * include what it just wrote.
  */
 async function loadWellnessPanelData(
   athleteId: number,
   timeZoneId: string
 ): Promise<WellnessPanelDataDto> {
-  const pullError = await pullWellnessOrError(athleteId, timeZoneId);
+  const pullError = await pullWellnessIfDue(athleteId, timeZoneId);
 
   const units = await getAthleteUnits();
   const wellness = await dal.wellness.listDailyWellness(

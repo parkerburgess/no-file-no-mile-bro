@@ -17,9 +17,8 @@ import {
  *
  * Unlike a finished activity, a day keeps changing — steps add up, and last
  * night's sleep is finalised after waking — so the last few stored days are
- * pulled again and overwritten. A first pull goes back a year. Once today
- * has a row, no pull runs until tomorrow, so Garmin is called at most once a
- * day on page loads.
+ * pulled again and overwritten. A first pull goes back a year. Whether a
+ * page load pulls at all is decided by shouldPullFromGarmin in recency.ts.
  */
 
 const DAILY_SUMMARIES_PATH = "/usersummary-service/v2/dailysummaries";
@@ -102,20 +101,15 @@ async function fetchSleepSummaries(
 
 /**
  * From a few days before the newest stored day, or a year back for a first
- * pull, through today in the athlete's timezone. Null when today is already
- * stored: the pull is skipped, so today's row keeps the values from the first
- * pull of the day.
+ * pull, through today in the athlete's timezone.
  */
 async function pullRange(
   athleteId: number,
   timeZoneId: string
-): Promise<DateRange | null> {
+): Promise<DateRange> {
   const endDate = todayIn(timeZoneId);
   const latest = await dal.wellness.latestDate(athleteId);
 
-  if (latest === endDate) {
-    return null;
-  }
   if (latest === null) {
     return {
       startDate: shiftDays(endDate, -(GARMIN_WELLNESS_FIRST_PULL_DAYS - 1)),
@@ -223,16 +217,12 @@ async function fetchWellnessDays(
   return [...daysByDate.values()].filter(hasAnyMetric);
 }
 
-/** Returns how many days were written; 0 when today was already stored. */
+/** Returns how many days were written. */
 export async function pullGarminWellness(
   athleteId: number,
   timeZoneId: string
 ): Promise<number> {
   const range = await pullRange(athleteId, timeZoneId);
-  if (range === null) {
-    return 0;
-  }
-
   const days = await fetchWellnessDays(athleteId, range);
 
   for (const day of days) {

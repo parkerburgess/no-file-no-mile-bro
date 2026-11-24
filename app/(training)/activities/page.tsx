@@ -2,6 +2,7 @@ import { requireAthlete } from "@/lib/auth";
 import { dal } from "@/lib/dal";
 import { getAthleteUnits, getLookups } from "@/lib/page-data";
 import { pullGarminActivities } from "@/lib/garmin/activities";
+import { shouldPullFromGarmin } from "@/lib/garmin/recency";
 import {
   toActivityCardDto,
   toActivityFormDto,
@@ -24,13 +25,30 @@ async function pullGarminOrError(athleteId: number): Promise<string | null> {
 }
 
 /**
- * Pulls new Garmin activities, then reads and hydrates everything stored.
- * The read waits for the pull so the cards include what it just added.
+ * Skipped once today's wellness is stored — the same gate as the layout's
+ * wellness pull. The panel's pull button bypasses it through the API route.
+ * Null when no pull was due, as well as when the pull succeeded.
+ */
+async function pullGarminIfDue(
+  athleteId: number,
+  timeZoneId: string
+): Promise<string | null> {
+  const isDue = await shouldPullFromGarmin(athleteId, timeZoneId);
+  if (!isDue) {
+    return null;
+  }
+  return pullGarminOrError(athleteId);
+}
+
+/**
+ * Pulls new Garmin activities when due, then reads and hydrates everything
+ * stored. The read waits for the pull so the cards include what it added.
  */
 async function loadActivityPanelData(
-  athleteId: number
+  athleteId: number,
+  timeZoneId: string
 ): Promise<ActivityPanelDataDto> {
-  const pullError = await pullGarminOrError(athleteId);
+  const pullError = await pullGarminIfDue(athleteId, timeZoneId);
 
   const units = await getAthleteUnits();
   const lookups = await getLookups();
@@ -54,5 +72,7 @@ async function loadActivityPanelData(
 export default async function ActivitiesPage() {
   const athlete = await requireAthlete();
 
-  return <ActivityPanel data={loadActivityPanelData(athlete.athleteId)} />;
+  const data = loadActivityPanelData(athlete.athleteId, athlete.timeZoneId);
+
+  return <ActivityPanel data={data} />;
 }
